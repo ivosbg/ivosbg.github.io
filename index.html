@@ -496,7 +496,7 @@ gl_FragColor=vec4(c,clamp(mix(.5,.97,clamp(vd/2.5,0.,1.))+f*.3+foam,0.,1.));}`})
   let li=0;tl.forEach(([x,z],i)=>{const y=hf(x,z),s=.8+rnd()*.6;dm2.position.set(x,y+4*s,z);dm2.scale.set(s,s,s);dm2.rotation.y=rnd()*6;dm2.updateMatrix();trunk.setMatrixAt(i,dm2.matrix);
    for(let k=0;k<4;k++){const a=k*Math.PI*.5+rnd()*.25,lift=.35+rnd()*.25;dir.set(Math.cos(a),lift,Math.sin(a)).normalize();dm2.position.set(x+Math.cos(a)*.55*s,y+3.7*s,z+Math.sin(a)*.55*s);dm2.quaternion.setFromUnitVectors(up,dir);dm2.scale.set(s,s,s);dm2.updateMatrix();branch.setMatrixAt(i*4+k,dm2.matrix)}
    for(let l=0;l<4;l++)for(let k=0;k<4;k++){const a=k*Math.PI*.5+(l%2)*.35+(rnd()-.5)*.3,r=(1.05-l*.18)*s;dm2.position.set(x+Math.cos(a)*r,y+(4.5+l*.9)*s,z+Math.sin(a)*r);dm2.scale.set((.95+rnd()*.18)*s,(.88+rnd()*.16)*s,1);dm2.rotation.set((rnd()-.5)*.24,a,(rnd()-.5)*.18);dm2.updateMatrix();leaves.setMatrixAt(li++,dm2.matrix)}
-  });trunk.instanceMatrix.needsUpdate=true;branch.instanceMatrix.needsUpdate=true;leaves.instanceMatrix.needsUpdate=true;trunk.castShadow=trunk.receiveShadow=true;branch.castShadow=true;leaves.castShadow=true;trunk.computeBoundingSphere();branch.computeBoundingSphere();leaves.computeBoundingSphere();sc.add(trunk,branch,leaves);
+  });trunk.instanceMatrix.needsUpdate=true;branch.instanceMatrix.needsUpdate=true;leaves.instanceMatrix.needsUpdate=true;trunk.castShadow=trunk.receiveShadow=true;branch.castShadow=true;leaves.castShadow=true;sc.add(trunk,branch,leaves);
   /* римска крепост Ciabrus */
   {const sm2=new T.MeshLambertMaterial({color:0x9a9488});TXM.stone.push(sm2);for(let i=0;i<26;i++){const a=i/26*6.283,x=560+Math.cos(a)*16,z=380+Math.sin(a)*16;if(rnd()>.25)box(5,1.5+rnd()*2.5,1.6,sm2,x,hf(x,z)+1,z).rotation.y=-a+1.571}}
   /* пристан и Радецки */
