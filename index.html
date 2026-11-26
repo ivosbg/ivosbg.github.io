@@ -1164,7 +1164,7 @@ const pixTireSqueal=(amount,speed=0)=>{const was=skidWanted,x=(!SND.m&&SND.v)?Ma
   const mapUp=dt=>{const vis=started&&ov.style.display!=='flex';if(vis!==mpShow){mpShow=vis;mpC.style.display=cpC.style.display=vis?'block':'none'}const dr=vis&&!!drive;if(dr!==dsShow){dsShow=dr;dsC.style.display=dr?'block':'none'}if(!vis)return;
    if(dr){dpT+=dt;if(dpT>.05){dpT=0;drawDash()}}
    mmT+=dt;if(mmT<.04)return;mmT=0;
-   {const sz=mpPhone?(mpBig?260:150):(mpBig?420:270);if(sz!==mpSz){mpSz=sz;mpC.style.width=mpC.style.height=sz+'px';mpC.width=mpC.height=Math.round(sz*mpDPR)}}
+   {const sz=mpPhone?(mpBig?420:150):(mpBig?420:270);if(sz!==mpSz){mpSz=sz;mpC.style.width=mpC.style.height=sz+'px';mpC.width=mpC.height=Math.round(sz*mpDPR)}}
    const c=mpX,S=mpC.width,half=S/2,D=mpDPR,px=drive?drive.x:PL.x,pz=drive?drive.z:PL.z,sy=Math.sin(CM.yaw),cy=Math.cos(CM.yaw),rad=(drive?70+Math.min(60,Math.abs(drive.v)*4):85)*(mpBig?1.9:1),k=half/rad,lim=rad*1.7;
    const X=(x,z)=>half+((x-px)*cy-(z-pz)*sy)*k,Y=(x,z)=>half+((x-px)*sy+(z-pz)*cy)*k;
    const hs=(a,b)=>{const s=Math.sin(a*12.9898+b*78.233)*43758.5453;return s-Math.floor(s)};
