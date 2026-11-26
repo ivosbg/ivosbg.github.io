@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#080b12"><title>Mario Theft Auto</title><style>body.solo #desk,body.solo #bar,body.solo #sm,body.solo #cm,body.solo #off,body.solo .ic{display:none!important}html,body{margin:0;overflow:hidden;background:#000}body.solo .bd{border:0!important;border-radius:0!important;box-shadow:none!important}</style><style>
+<!DOCTYPE html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#080b12"><title>Mario Theft Auto</title><style>body.solo #desk,body.solo #bar,body.solo #sm,body.solo #cm,body.solo #off,body.solo .ic{display:none!important}html,body{margin:0;overflow:hidden;background:#000}body.solo .bd{border:0!important;border-radius:0!important;box-shadow:none!important}</style><style>
 :root{--t:rgba(60,170,230,.5)}
 *{box-sizing:border-box;margin:0;font-family:"Segoe UI",system-ui,sans-serif}
 html,body{height:100%;overflow:hidden;user-select:none;background:#0a3a66}
@@ -1515,7 +1515,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
  .mta-action-cluster{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(2,68px);grid-auto-rows:62px;gap:9px;align-items:end;pointer-events:auto}
  .mta-hud-action{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;border:1px solid #ffffff70;border-radius:19px;background:linear-gradient(145deg,#354761ed,#111c2eeb);color:#fff;box-shadow:0 6px 18px #0008,inset 0 1px 0 #ffffff30;font-size:10px;font-weight:900;letter-spacing:.08em;text-shadow:0 1px 3px #000;touch-action:none;min-width:0;padding:4px}
  .mta-hud-action .mta-action-symbol{font-size:21px;line-height:1.1;font-weight:900}
- .mta-hud-action.primary{background:linear-gradient(145deg,#f36a9d,#a91e64);border-color:#ffc0da;box-shadow:0 5px 22px #ec3e9166,inset 0 1px 0 #ffffff60}
+ .mta-hud-action.radio{background:linear-gradient(145deg,#36a9a0ed,#125b61eb);border-color:#9ff5e8}.mta-hud-action.primary{background:linear-gradient(145deg,#f36a9d,#a91e64);border-color:#ffc0da;box-shadow:0 5px 22px #ec3e9166,inset 0 1px 0 #ffffff60}
  .mta-hud-action.jump{background:linear-gradient(145deg,#e0ad50,#98601d);border-color:#ffe0a0}
  .mta-hud-action.active{filter:brightness(1.35);box-shadow:0 0 0 2px #fff8,0 0 22px #8ed8ff8c}
  .mta-camera-tip{position:absolute;right:max(18px,env(safe-area-inset-right));top:58px;max-width:154px;padding:7px 10px;border:1px solid #ffffff26;border-radius:10px;background:#0913219c;color:#ffffffb9;font-size:9px;font-weight:750;letter-spacing:.1em;text-align:right;pointer-events:none;text-shadow:0 1px 3px #000;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -1544,7 +1544,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
  window.__mtaTouchSensitivity=sensitivity;
  const keyDetails={
   KeyW:{key:'w'},KeyA:{key:'a'},KeyS:{key:'s'},KeyD:{key:'d'},
-  ShiftLeft:{key:'Shift'},Space:{key:' '},KeyF:{key:'f'},KeyH:{key:'h'},KeyC:{key:'c'}
+  ShiftLeft:{key:'Shift'},Space:{key:' '},KeyF:{key:'f'},KeyH:{key:'h'},KeyC:{key:'c'},KeyR:{key:'r'}
  };
  const focusHost=()=>{if(installedHost&&installedHost.isConnected){try{installedHost.focus({preventScroll:true})}catch(_){installedHost.focus()}}};
  function setKey(code,pressed){const d=keyDetails[code];if(!d)return;const has=downKeys.has(code);if(has===pressed)return;if(pressed){focusHost();downKeys.add(code)}else downKeys.delete(code);const ev=new KeyboardEvent(pressed?'keydown':'keyup',{key:d.key,code,bubbles:true,cancelable:true});document.dispatchEvent(ev)}
@@ -1585,7 +1585,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   const stickZone=document.createElement('div');stickZone.className='mta-stick-zone';stickZone.setAttribute('aria-label','Movement joystick');
   const stick=document.createElement('div');stick.className='mta-stick-base';const ring=document.createElement('div');ring.className='mta-stick-ring';const knob=document.createElement('div');knob.className='mta-stick-knob';const stickLabel=document.createElement('div');stickLabel.className='mta-stick-label';stickLabel.textContent='MOVE';stick.append(ring,knob);stickZone.append(stick,stickLabel);
   const actions=document.createElement('div');actions.className='mta-action-cluster';
-  actions.append(makeAction('SPRINT','⚡','ShiftLeft','',true),makeAction('JUMP / BRAKE','↑','Space','jump',true),makeAction('ENTER / EXIT','F','KeyF','primary',false),makeAction('HORN','♫','KeyH','',false),makeAction('CROUCH','↓','KeyC','',true));
+  actions.append(makeAction('SPRINT','⚡','ShiftLeft','',true),makeAction('JUMP / BRAKE','↑','Space','jump',true),makeAction('ENTER / EXIT','F','KeyF','primary',false),makeAction('HORN','♫','KeyH','',false),makeAction('CROUCH','↓','KeyC','',true),makeAction('RADIO','R','KeyR','radio',false));
   const panel=document.createElement('div');panel.className='mta-settings-panel';panel.hidden=true;
   const head=document.createElement('div');head.className='mta-settings-head';head.innerHTML='<span>TOUCH SETTINGS</span>';
   const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Close settings');head.append(close);
