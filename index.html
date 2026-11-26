@@ -268,6 +268,18 @@ html,body{height:100%;overflow:hidden;user-select:none;background:#0a3a66}
 #cinemaLoader.on-cover .gta-tint{opacity:.28}
 @media(max-width:700px){#cinemaLoader #cinemaScene0 .cinema-subject{width:118vw!important;height:auto!important;max-width:none!important;left:auto!important;right:-9vw!important;opacity:1}#cinemaLoader #cinemaScene0 .cinema-bg{left:-8%;top:4%;width:150%;height:74%;object-position:12% 50%;scale:1.02;-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)}}
 </style>
+
+<style id="fullscreenViewportFix">
+html:fullscreen,html:-webkit-full-screen,body:fullscreen,body:-webkit-full-screen{
+  width:100%;height:100%;overflow:hidden;background:#000;
+}
+@supports(height:100dvh){
+  #launchIntro,#cinemaLoader{min-height:100dvh}
+}
+@media(max-width:700px){
+  #launchIntro,#cinemaLoader{width:100vw;height:100vh;height:100dvh}
+}
+</style>
 </head><body>
 <div id="launchIntro"><button id="launchEnter" type="button" autofocus>ENTER</button></div>
 <div id="cinemaLoader" role="status" aria-label="Loading Mario Theft Auto">
@@ -342,7 +354,34 @@ html,body{height:100%;overflow:hidden;user-select:none;background:#0a3a66}
  async function waitForEmbeddedAssets(){const started=performance.now();while(document.readyState==='loading'||!['roadtex','vazpack','playerGlbData'].every(id=>{const node=document.getElementById(id);return node&&node.textContent.length>100})){if(performance.now()-started>45000)throw new Error('Embedded game files did not finish parsing');await delay(80)}}
  async function waitForWorld(){const start=performance.now();while(performance.now()-start<45000){if(data.runtimeFailure)throw new Error(data.runtimeFailure);const now=performance.now(),worldSeen=data.worldReady,quiet=worldSeen&&now-data.lastTextureEvent>900,modelReady=data.modelParseRequests?data.modelParsed||data.modelParseErrors>0:worldSeen&&now-data.worldReadyAt>2500;if(data.appReady&&worldSeen&&data.pendingTextures===0&&quiet&&modelReady)break;if(data.pendingTextures>0)label.textContent='Loading world textures '+data.textureLoaded+'/'+data.textureRequests;await delay(100)}if(data.runtimeFailure)throw new Error(data.runtimeFailure);if(!data.worldReady)throw new Error('Game renderer did not reach its first frame');if(data.pendingTextures>0)throw new Error('Game textures did not finish loading');if(data.modelParseRequests&&!data.modelParsed&&!data.modelParseErrors)throw new Error('Player model did not finish loading');if(data.textureErrors)addLog(data.textureErrors+' texture download(s) failed',true);if(data.modelParseErrors)addLog('Player model load reported an error',true)}
  async function runPipeline(){if(data.pipelineStarted)return;data.pipelineStarted=true;data.startedAt=performance.now();label.textContent='Verifying bundled game files';addLog('Game load started — scanning embedded files');try{await waitForEmbeddedAssets();if(!(await data.imagesPromise))throw data.imageError||new Error('A cinematic image failed to decode');markStep('photos',4,'Cinematic photographs decoded','Checking soundtrack');const audioOK=await data.audioPromise;if(audioOK)markStep('audio',8,'Original soundtrack ready — '+Math.round(data.audioDuration/60)+' min','Checking road files');else addLog('Soundtrack could not be read from the adjacent MP3',true);const road=JSON.parse(document.getElementById('roadtex').textContent);const roadImages=[road.c,road.n,road.r];if(roadImages.some(url=>typeof url!=='string'))throw new Error('Road texture manifest is incomplete');await Promise.all(roadImages.map(decodeImage));markStep('roads',12,'Road pack verified — 3 maps','Checking vehicle files');const pack=JSON.parse(document.getElementById('vazpack').textContent);const vehicleImages=[...pack.tex.bc,pack.tex.bn,pack.tex.bm,pack.tex.wc,pack.tex.wm,pack.tex.wn,pack.tex.gc,pack.tex.ga];if(vehicleImages.length!==11)throw new Error('Vehicle texture manifest is incomplete');const binary=fromBase64(pack.bin);checkGeometry(pack,binary);await Promise.all(vehicleImages.map(decodeImage));window.__mtaVerifiedVazPack=pack;window.__mtaVerifiedVazBin=binary.buffer;markStep('vehicle',25,'Vehicle mesh and 11 maps verified','Decompressing player model');await verifyPlayer();markStep('player',35,'Player model verified — GLB 2.0','Starting the game engine');const startGame=await waitForStarter();markStep('scripts',40,'Game scripts and controls loaded','Loading the 3D renderer');data.bootStartedAt=performance.now();startGame();await waitForWorld();markStep('world',100,data.textureRequests?'World initialized — '+data.textureLoaded+'/'+data.textureRequests+' textures':'Game world rendered','World verified');data.pipelineDone=true;addLog('All bundled game files verified');finishLoading()}catch(error){console.error('Game loading pipeline failed',error);addLog('Loading check failed: '+(error&&error.message||error),true);label.textContent='Loading check failed';data.pipelineDone=false}}
- function beginIntro(){if(data.entered)return;data.entered=true;data.startedAt=performance.now();enterButton.disabled=true;intro.classList.add('is-exiting');root.classList.add('is-started');startNativeMusic();renderMusic();setScene(0);cycle=setInterval(()=>setScene((data.scene+1)%scenes.length),5000);runPipeline();setTimeout(()=>intro.remove(),1500);setTimeout(()=>{data.revealReady=true;finishLoading()},1750)}
+ function beginIntro(){
+  if(data.entered)return;
+  data.entered=true;
+  data.startedAt=performance.now();
+  enterButton.disabled=true;
+
+  // Request fullscreen during the user's click gesture where the browser supports it.
+  // iOS Safari can restrict fullscreen for normal webpages; the game still continues.
+  const page=document.documentElement;
+  try{
+    if(!document.fullscreenElement && page.requestFullscreen){
+      const request=page.requestFullscreen({navigationUI:'hide'});
+      if(request && typeof request.catch==='function')request.catch(()=>{});
+    }else if(!document.fullscreenElement && page.webkitRequestFullscreen){
+      page.webkitRequestFullscreen();
+    }
+  }catch(error){console.debug('Fullscreen unavailable:',error)}
+
+  intro.classList.add('is-exiting');
+  root.classList.add('is-started');
+  startNativeMusic();
+  renderMusic();
+  setScene(0);
+  cycle=setInterval(()=>setScene((data.scene+1)%scenes.length),5000);
+  runPipeline();
+  setTimeout(()=>intro.remove(),1500);
+  setTimeout(()=>{data.revealReady=true;finishLoading()},1750);
+}
  function renderMusic(){if(!data.entered||data.finished||musicOn||musicEnded){audioHint.classList.remove('is-visible');audioHint.textContent='';return}audioHint.textContent=nativeStarting?'Starting soundtrack…':'Audio needs permission — click anywhere or press a key to retry';audioHint.classList.add('is-visible')}
  function startNativeMusic(){if(data.finished||musicEnded||musicOn||nativeStarting)return;prepareAudio();nativeAudio.volume=musicVolume;if(nativeAudio.currentTime<.05)nativeAudio.currentTime=0;nativeStarting=true;const attempt=nativeAudio.play();if(attempt&&typeof attempt.then==='function'){attempt.then(()=>{nativeStarting=false;if(data.finished){nativeAudio.pause();return}musicOn=true;window.removeEventListener('pointerdown',unlockMusic,true);window.removeEventListener('keydown',unlockMusic,true);renderMusic()}).catch(()=>{nativeStarting=false;renderMusic()})}else{nativeStarting=false;musicOn=!nativeAudio.paused;renderMusic()}}
  function unlockMusic(){if(!data.entered||data.finished||musicEnded||musicOn||nativeStarting)return;startNativeMusic()}
