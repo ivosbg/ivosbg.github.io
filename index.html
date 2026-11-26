@@ -1296,45 +1296,85 @@ gl_FragColor=vec4(col,a*hz);
   const cloudColors=(day,night,dusk)=>{CU.uLit.value.copy(CL.lN).lerp(CL.lD,day).lerp(CL.lDu,dusk*.9);CU.uShade.value.copy(CL.sN).lerp(CL.sD,day).lerp(CL.sDu,dusk*.85);CU.uCover.value=.5+.07*Math.sin(TOD.t*37);CU.uOp.value=.95-.2*night};
   /* --- трева: инстансирани стръкове с вятър, отместване от играча/коли и възстановяване --- */
   const GR=(()=>{
-   const W=LOWQ?64:96,cs=LOWQ?1.1:.8,N=W*W,R0=W*cs/2;
-   const pos=[],col=[],nor=[],nb=6;
-   for(let b=0;b<nb;b++){const a=b/nb*Math.PI*2+b*.7,ox=Math.cos(a)*.08,oz=Math.sin(a)*.08,lean=.1+.17*((b*37%10)/10),ht=.42+.26*((b*53%10)/10),w=.04,bx=Math.cos(a+1.57)*w,bz=Math.sin(a+1.57)*w,tx=ox+Math.cos(a)*lean,tz=oz+Math.sin(a)*lean,v=[[ox-bx,0,oz-bz],[ox+bx,0,oz+bz],[tx,ht,tz]];
-    for(const rev of[0,1])for(const k of(rev?[0,2,1]:[0,1,2])){pos.push(v[k][0],v[k][1],v[k][2]);const yy=Math.min(1,v[k][1]/.67);col.push(.1+.36*yy,.19+.42*yy,.05+.12*yy);nor.push(0,1,0)}}
-   const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setAttribute('normal',new T.Float32BufferAttribute(nor,3));
-   const U={uTime:{value:0},uWind:{value:new T.Vector2(1,0)},uWindS:{value:.6},uR:{value:R0},uI:{value:Array.from({length:16},()=>new T.Vector4(0,0,1,0))}};
-   const mat=new T.MeshLambertMaterial({vertexColors:true});
-   mat.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime,uWindS,uR;uniform vec2 uWind;uniform vec4 uI[16];').replace('#include <project_vertex>',`
+   /* ===== REALISTIC GRASS =====
+      curved, tapered, multi-segment blades with baked ambient occlusion + per-blade colour variation,
+      two streamed density layers (tall meadow + dense short undergrowth), travelling wind ripples,
+      per-blade flutter, sun translucency, shadow receiving. Geometry is indexed, so the reverse-winding
+      back faces reuse the same vertices (no extra vertex-shader work). */
+   let seed=20240611;const rnd=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
+   const mix3=(a,b,k)=>[a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k];
+   const CB=[.05,.11,.03],CM=[.17,.33,.065],CT=[.44,.58,.16];
+   const mkBlades=(nb,segs,o)=>{
+    const pos=[],nor=[],col=[],phs=[],idx=[];let vi=0;
+    for(let b=0;b<nb;b++){
+     const a=(b+rnd()*.7)/nb*Math.PI*2,r=o.cr*(.2+.8*Math.sqrt(rnd())),ox=Math.cos(a)*r,oz=Math.sin(a)*r,
+      ht=o.h0+(o.h1-o.h0)*rnd(),w0=o.w0*(.75+.5*rnd()),ba=a+(rnd()-.5)*1.7,lean=o.l0+(o.l1-o.l0)*rnd(),
+      dx=Math.cos(ba),dz=Math.sin(ba),sx=-dz,sz=dx,br=.8+.4*rnd(),hue=(rnd()-.5)*.18,pp=rnd()*6.2832,f0=vi;
+     for(let i=0;i<=segs;i++){
+      const t=i/segs,tip=i===segs,bend=lean*ht*t*t*1.15,y=ht*t*(1-.22*lean*t),w=tip?0:o.w0*(.75+.5*(pp/6.2832))*Math.pow(1-t,.72),
+       cx=ox+dx*bend,cz=oz+dz*bend,c=t<.38?mix3(CB,CM,t/.38):mix3(CM,CT,(t-.38)/.62),
+       rr=c[0]*br*(1+hue),gg=c[1]*br*(1-hue*.15),bb=c[2]*br*(1-hue*.9),nt=.18+.4*lean*t;
+      for(const sg of(tip?[0]:[-1,1])){
+       pos.push(cx+sx*w*sg,y,cz+sz*w*sg);
+       let nx=dx*nt+sx*sg*.3,ny=.9,nz=dz*nt+sz*sg*.3;const nl=Math.hypot(nx,ny,nz);nor.push(nx/nl,ny/nl,nz/nl);
+       col.push(rr,gg,bb);phs.push(pp);vi++}
+     }
+     for(let i=0;i<segs;i++){const L0=f0+2*i;
+      if(i<segs-1){const R0=L0+1,L1=L0+2,R1=L0+3;idx.push(L0,R0,L1,R0,R1,L1,L0,L1,R0,R0,L1,R1)}
+      else{const R0=L0+1,TP=f0+2*segs;idx.push(L0,R0,TP,L0,TP,R0)}}
+    }
+    const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('normal',new T.Float32BufferAttribute(nor,3));
+    g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setAttribute('aPh',new T.Float32BufferAttribute(phs,1));g.setIndex(idx);return g};
+   const UB={uTime:{value:0},uWind:{value:new T.Vector2(1,0)},uWindS:{value:.6},uSun:{value:sunD},uSunK:{value:1},uI:{value:Array.from({length:16},()=>new T.Vector4(0,0,1,0))}};
+   const U=UB;
+   const mkMat=R=>{const UU=Object.assign({},UB,{uR:{value:R}});const m=new T.MeshLambertMaterial({vertexColors:true});
+    m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,UU);sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime,uWindS,uR,uSunK;uniform vec2 uWind;uniform vec3 uSun;uniform vec4 uI[16];attribute float aPh;').replace('#include <project_vertex>',`
 vec4 gB=instanceMatrix*vec4(0.,0.,0.,1.);vec4 gW=instanceMatrix*vec4(transformed,1.);float gs=length(instanceMatrix[1].xyz);
-float gh=clamp(position.y/.67,0.,1.);gh*=gh;float fd=1.-smoothstep(uR*.78,uR,length(gB.xz-cameraPosition.xz));gW.y=gB.y+(gW.y-gB.y)*fd;gh*=fd;
-float ph=uTime*1.8+gB.x*.31+gB.z*.23;float gust=.5+.5*sin(uTime*.55+gB.x*.045+gB.z*.037);
-float sw=(sin(ph)*.55+sin(ph*2.3+1.7)*.25+.55)*(.3+.7*gust)*uWindS;gW.xz+=uWind*sw*.3*gh*gs;
-for(int i=0;i<16;i++){vec4 q=uI[i];vec2 dv=gB.xz-q.xy;float dd=length(dv);float f=smoothstep(q.z,0.,dd)*q.w;vec2 dr=dv/max(dd,.001);gW.xz+=dr*f*gh*gs*.85;gW.y-=f*gh*gs*.45;}
-vec4 mvPosition=modelViewMatrix*vec4(gW.xyz,1.);gl_Position=projectionMatrix*mvPosition;`)};
-   const mesh=new T.InstancedMesh(g,mat,N);mesh.frustumCulled=false;mesh.setColorAt(0,new T.Color(1,1,1));sc.add(mesh);
-   /* маска: пътища, тротоари, къщи и площад — без трева */
+float gy=clamp(position.y/.67,0.,1.);float gh=gy*gy;float fd=1.-smoothstep(uR*.78,uR,length(gB.xz-cameraPosition.xz));gW.y=gB.y+(gW.y-gB.y)*fd;gh*=fd;
+float ph=uTime*1.8+gB.x*.31+gB.z*.23+aPh*.12;float gust=.5+.5*sin(uTime*.55+gB.x*.045+gB.z*.037);
+float rip=.5+.5*sin(dot(gB.xz,uWind)*.17-uTime*1.9+aPh*.05);
+float sw=(sin(ph)*.5+sin(ph*2.3+1.7)*.22+.5)*(.25+.45*gust+.4*rip)*uWindS;
+float fl=sin(uTime*5.1+aPh*7.)*.05*uWindS;
+gW.xz+=(uWind*(sw*.3+fl)+vec2(-uWind.y,uWind.x)*fl*.7)*gh*gs;
+if(gh>.001){for(int i=0;i<16;i++){vec4 q=uI[i];vec2 dv=gB.xz-q.xy;float dd=length(dv);float f=smoothstep(q.z,0.,dd)*q.w;vec2 dr=dv/max(dd,.001);gW.xz+=dr*f*gh*gs*.85;gW.y-=f*gh*gs*.45;}}
+vec4 mvPosition=modelViewMatrix*vec4(gW.xyz,1.);gl_Position=projectionMatrix*mvPosition;
+#if defined(USE_COLOR)||defined(USE_INSTANCING_COLOR)
+vec3 gvd=normalize(gW.xyz-cameraPosition);float gtr=pow(max(dot(gvd,uSun),0.),2.5)*uSunK;
+vColor.rgb*=(.9+.2*clamp(sw,0.,1.)*gy)*(1.+gtr*gy*1.5*vec3(1.,.96,.55));
+#endif
+`)};return m};
+   /* mask: roads, pavements, houses and the square — no grass */
    const mx0=Math.floor(VPX0-40),mz0=Math.floor(VPZ0-40),MW=Math.ceil(VPX1-VPX0+80),MH=Math.ceil(VPZ1-VPZ0+80),mask=new Uint8Array(MW*MH);
    const mkc=(x,z,r)=>{const i0=Math.max(0,Math.floor(x-r-mx0)),i1=Math.min(MW-1,Math.ceil(x+r-mx0)),j0=Math.max(0,Math.floor(z-r-mz0)),j1=Math.min(MH-1,Math.ceil(z+r-mz0));for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const dx=i+mx0+.5-x,dz=j+mz0+.5-z;if(dx*dx+dz*dz<r*r)mask[i*MH+j]=1}};
    VRP.forEach(q=>mkc(q[0],q[1],q[2]+1.7));mkc(VCH[0]+16,VCH[1],10.5);
    for(const o of AB){if(Math.min(o.hx,o.hz)<.45)continue;const a=o.a||0,ca=Math.cos(a),sa=Math.sin(a),r=Math.hypot(o.hx,o.hz)+1,i0=Math.max(0,Math.floor(o.x-r-mx0)),i1=Math.min(MW-1,Math.ceil(o.x+r-mx0)),j0=Math.max(0,Math.floor(o.z-r-mz0)),j1=Math.min(MH-1,Math.ceil(o.z+r-mz0));for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const dx=i+mx0+.5-o.x,dz=j+mz0+.5-o.z,lx=dx*ca-dz*sa,lz=dx*sa+dz*ca;if(Math.abs(lx)<o.hx+.9&&Math.abs(lz)<o.hz+.9)mask[i*MH+j]=1}}
    const hh=(a,b,c)=>{let h=Math.imul(a|0,374761393)+Math.imul(b|0,668265263)+Math.imul(c|0,1274126177);h=Math.imul(h^(h>>>13),1103515245);h^=h>>>16;return(h>>>0)/4294967296};
-   const idX=new Int32Array(N).fill(-99999),idZ=new Int32Array(N).fill(-99999),m4=new T.Matrix4(),q4=new T.Quaternion(),p3=new T.Vector3(),s3=new T.Vector3(),yA=new T.Vector3(0,1,0),cc=new T.Color();
-   const calc=(s,ix,iz)=>{const x=(ix+hh(ix,iz,1))*cs,z=(iz+hh(ix,iz,2))*cs,inV=x>VPX0&&x<VPX1&&z>VPZ0&&z<VPZ1,y=hf(x,z);let ok=y>.5&&hh(ix,iz,3)<(inV?.65:.95);
-    if(ok&&x>mx0&&z>mz0&&x<mx0+MW&&z<mz0+MH&&mask[((x-mx0)|0)*MH+((z-mz0)|0)])ok=false;
-    const pat=.5+.5*Math.sin(x*.05+1.3)*Math.sin(z*.043+.4),sy=(.55+.9*hh(ix,iz,4))*(.7+.6*pat)*(inV?.7:1),sx=.8+.5*hh(ix,iz,5);
-    p3.set(x,y-.02,z);q4.setFromAxisAngle(yA,hh(ix,iz,7)*6.2832);s3.set(ok?sx:0,ok?sy:0,ok?sx:0);m4.compose(p3,q4,s3);mesh.setMatrixAt(s,m4);
-    const dry=hh(ix,iz,6)*.6*(1-pat),br=.85+.3*hh(ix,iz,8);cc.setRGB((1+dry*.55-.1)*br,(1-dry*.15)*br,(1-dry*.5)*br);mesh.setColorAt(s,cc)};
-   const upd=budget=>{const cx=Math.floor(cam.position.x/cs),cz=Math.floor(cam.position.z/cs),h2=W>>1;let n=0;
-    outer:for(let a=cx-h2;a<cx+h2;a++){const sx=((a%W)+W)%W;for(let b=cz-h2;b<cz+h2;b++){const s=sx*W+((b%W)+W)%W;if(idX[s]!==a||idZ[s]!==b){idX[s]=a;idZ[s]=b;calc(s,a,b);if(++n>=budget)break outer}}}
-    if(n){mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true}};
-   /* физика: вятър + отместване от играча/колите, следа която се възстановява */
+   const m4=new T.Matrix4(),q4=new T.Quaternion(),p3=new T.Vector3(),s3=new T.Vector3(),yA=new T.Vector3(0,1,0),cc=new T.Color();
+   /* one streamed layer = one InstancedMesh recycled on a torus grid around the camera */
+   const mkLayer=c=>{
+    const W=c.W,cs=c.cs,N=W*W,mesh=new T.InstancedMesh(mkBlades(c.nb,c.segs,c),mkMat(W*cs/2),N);
+    mesh.frustumCulled=false;mesh.setColorAt(0,new T.Color(1,1,1));mesh.receiveShadow=!LOWQ;sc.add(mesh);
+    const idX=new Int32Array(N).fill(-99999),idZ=new Int32Array(N).fill(-99999);
+    const calc=(s,ix,iz)=>{const x=(ix+hh(ix,iz,1))*cs,z=(iz+hh(ix,iz,2))*cs,inV=x>VPX0&&x<VPX1&&z>VPZ0&&z<VPZ1,y=hf(x,z);let ok=y>.5&&hh(ix,iz,3)<(inV?.65:.95);
+     if(ok&&x>mx0&&z>mz0&&x<mx0+MW&&z<mz0+MH&&mask[((x-mx0)|0)*MH+((z-mz0)|0)])ok=false;
+     const pat=.5+.5*Math.sin(x*.05+1.3)*Math.sin(z*.043+.4),sy=(.55+.9*hh(ix,iz,4))*(.7+.6*pat)*(inV?.7:1)*c.hMul,sx=(.8+.5*hh(ix,iz,5))*c.wMul;
+     p3.set(x,y-.02,z);q4.setFromAxisAngle(yA,hh(ix,iz,7)*6.2832);s3.set(ok?sx:0,ok?sy:0,ok?sx:0);m4.compose(p3,q4,s3);mesh.setMatrixAt(s,m4);
+     const dry=hh(ix,iz,6)*.6*(1-pat),br=.85+.3*hh(ix,iz,8);cc.setRGB((1+dry*.55-.1)*br,(1-dry*.15)*br,(1-dry*.5)*br);mesh.setColorAt(s,cc)};
+    const upd=budget=>{const cx=Math.floor(cam.position.x/cs),cz=Math.floor(cam.position.z/cs),h2=W>>1;let n=0;
+     outer:for(let a=cx-h2;a<cx+h2;a++){const sx=((a%W)+W)%W;for(let b=cz-h2;b<cz+h2;b++){const s=sx*W+((b%W)+W)%W;if(idX[s]!==a||idZ[s]!==b){idX[s]=a;idZ[s]=b;calc(s,a,b);if(++n>=budget)break outer}}}
+     if(n){mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true}};
+    return{upd,bud:c.bud}};
+   const LY=[mkLayer({W:LOWQ?72:104,cs:LOWQ?1.05:.78,nb:LOWQ?4:6,segs:LOWQ?2:3,cr:.34,h0:.34,h1:.7,w0:.038,l0:.12,l1:.55,hMul:1,wMul:1,bud:LOWQ?500:900})];
+   if(!LOWQ)LY.push(mkLayer({W:80,cs:.27,nb:5,segs:3,cr:.12,h0:.16,h1:.42,w0:.022,l0:.1,l1:.5,hMul:.85,wMul:.9,bud:700}));
+   /* physics: wind + displacement by the player/cars, a trail that recovers */
    const trail=[];let first=1;
-   const step=dt=>{U.uTime.value+=dt;const ang=.6+Math.sin(t*.03)*.5;U.uWind.value.set(Math.cos(ang),Math.sin(ang));U.uWindS.value=Math.max(.2,Math.min(1.05,.5+.3*Math.sin(t*.11)+.2*Math.sin(t*.37)));
+   const step=dt=>{U.uTime.value+=dt;const ang=.6+Math.sin(t*.03)*.5;U.uWind.value.set(Math.cos(ang),Math.sin(ang));U.uWindS.value=Math.max(.2,Math.min(1.05,.5+.3*Math.sin(t*.11)+.2*Math.sin(t*.37)));U.uSunK.value=Math.max(0,Math.min(1,dl.intensity*.5));
     const mx=drive?drive.x:PL.x,mz=drive?drive.z:PL.z,mr=drive?(drive.P&&drive.P.boat?0:2.8):1.15,A=U.uI.value,lt=trail[0];
     if(mr>0&&(!lt||Math.hypot(mx-lt.x,mz-lt.z)>mr*.7))trail.unshift({x:mx,z:mz,r:mr,age:0});
     for(const q of trail)q.age+=dt;while(trail.length>12||(trail.length&&trail[trail.length-1].age>3.4))trail.pop();
     A[0].set(mx,mz,mr||1,mr>0?1:0);for(let i=0;i<12;i++){const q=trail[i];if(q)A[1+i].set(q.x,q.z,q.r*.9,Math.exp(-q.age/1.3)*.85);else A[1+i].set(0,0,1,0)}
     let k=0;for(const v of V){if(k>=3)break;if(v===drive||!v.g||!v.g.userData||!v.g.userData.W||(v.P&&v.P.boat)||Math.abs(v.v)<1.5)continue;const dx=v.x-cam.position.x,dz=v.z-cam.position.z;if(dx*dx+dz*dz>3600)continue;A[13+k].set(v.x,v.z,2.8,1);k++}for(;k<3;k++)A[13+k].set(0,0,1,0);
-    upd(first?3000:900);first=0};
+    for(const l of LY)l.upd(first?3000:l.bud);first=0};
    return{step}})();
   const grassUpdate=dt=>{CU.uTime.value+=dt;GR.step(dt)};
   /* ===== ДЕН/НОЩ ЦИКЪЛ — неонова Vice City атмосфера ===== */
