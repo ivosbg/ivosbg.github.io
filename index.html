@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <!DOCTYPE html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="dark"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#080b12"><title>Mario Theft Auto</title><style>body.solo #desk,body.solo #bar,body.solo #sm,body.solo #cm,body.solo #off,body.solo .ic{display:none!important}html,body{margin:0;overflow:hidden;background:#000}body.solo .bd{border:0!important;border-radius:0!important;box-shadow:none!important}</style><style>
+=======
+<!DOCTYPE html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#080b12"><title>Mario Theft Auto</title><style>body.solo #desk,body.solo #bar,body.solo #sm,body.solo #cm,body.solo #off,body.solo .ic{display:none!important}html,body{margin:0;overflow:hidden;background:#000}body.solo .bd{border:0!important;border-radius:0!important;box-shadow:none!important}</style><style>
+>>>>>>> 0d430339074cf03a3202b7e4c93d2abdb596a2a0
 :root{--t:rgba(60,170,230,.5)}
 *{box-sizing:border-box;margin:0;font-family:"Segoe UI",system-ui,sans-serif}
 html,body{height:100%;overflow:hidden;user-select:none;background:#0a3a66}
@@ -280,6 +284,7 @@ html:fullscreen,html:-webkit-full-screen,body:fullscreen,body:-webkit-full-scree
   #launchIntro,#cinemaLoader{width:100vw;height:100vh;height:100dvh}
 }
 </style>
+<<<<<<< HEAD
 <style id="mtaShellPolish">
 *{-webkit-tap-highlight-color:transparent}
 html,body{height:100dvh}
@@ -309,6 +314,8 @@ button,.b,.ic,.tk,.mi,.wb i,#sb,#sd{touch-action:manipulation}
 }
 @media(prefers-reduced-motion:reduce){.win,#sm.open{animation:none!important}}
 </style>
+=======
+>>>>>>> 0d430339074cf03a3202b7e4c93d2abdb596a2a0
 </head><body>
 <div id="launchIntro"><button id="launchEnter" type="button" autofocus>ENTER</button></div>
 <div id="cinemaLoader" role="status" aria-label="Loading Mario Theft Auto">
@@ -1334,8 +1341,11 @@ const showStartMenu=()=>{ov.style.display='flex';ov.style.background='radial-gra
   const radio=on=>{RD.on=on;if(on){if(!RD.au){const d=document.getElementById('radiomp3');RD.au=new Audio('data:audio/mpeg;base64,'+d.textContent.trim());RD.au.loop=true;RD.au.volume=.85;b.radioFr=RD.au}RD.au.play().catch(()=>{})}else RD.au&&RD.au.pause()};
   document.addEventListener('keydown',e=>{if(b.dead||!act())return;K[e.code]=1;if(e.code==='KeyM'&&started)mpBig=!mpBig;if(e.code==='KeyN'&&started){TOD.t=(TOD.t+.125)%1;TOD.paint=1}if(e.code==='KeyR'&&drive&&started)radio(!RD.on);if(e.code==='KeyT'&&drive&&started)ODO.trip=0;if(e.code==='KeyY'&&drive&&started)CR.repair(drive);if(e.code==='KeyG'&&started&&FX.setHDR)FX.setHDR(!FX.on);if(e.code==='KeyO'&&started&&FX.ssao&&FX.on){const on=!FX.ssao[0].enabled;FX.ssao.forEach(q=>q.enabled=on)}if(e.code==='KeyF'&&started)enter();if(e.code==='KeyH'&&drive)sfx('horn');if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
   document.addEventListener('keyup',e=>{K[e.code]=0});
+<<<<<<< HEAD
   const clearKeys=()=>{for(const k in K)K[k]=0};addEventListener('blur',clearKeys);
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearKeys();try{saveGame()}catch(_){}}});addEventListener('pagehide',()=>{try{saveGame()}catch(_){}});
+=======
+>>>>>>> 0d430339074cf03a3202b7e4c93d2abdb596a2a0
   b.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv||e.buttons&1){CM.yaw-=e.movementX*.0026;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+e.movementY*.0026));CM.idle=0}});
   // Receive camera deltas from the dedicated mobile look zone in the outer HUD.
   // This avoids depending on canvas hit-testing or synthetic mouse movement.
