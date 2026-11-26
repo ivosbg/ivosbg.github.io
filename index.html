@@ -1264,7 +1264,36 @@ const showStartMenu=()=>{ov.style.display='flex';ov.style.background='radial-gra
   const radio=on=>{RD.on=on;if(on){if(!RD.au){const d=document.getElementById('radiomp3');RD.au=new Audio('data:audio/mpeg;base64,'+d.textContent.trim());RD.au.loop=true;RD.au.volume=.85;b.radioFr=RD.au}RD.au.play().catch(()=>{})}else RD.au&&RD.au.pause()};
   document.addEventListener('keydown',e=>{if(b.dead||!act())return;K[e.code]=1;if(e.code==='KeyM'&&started)mpBig=!mpBig;if(e.code==='KeyN'&&started){TOD.t=(TOD.t+.125)%1;TOD.paint=1}if(e.code==='KeyR'&&drive&&started)radio(!RD.on);if(e.code==='KeyT'&&drive&&started)ODO.trip=0;if(e.code==='KeyY'&&drive&&started)CR.repair(drive);if(e.code==='KeyG'&&started&&FX.setHDR)FX.setHDR(!FX.on);if(e.code==='KeyO'&&started&&FX.ssao&&FX.on){const on=!FX.ssao[0].enabled;FX.ssao.forEach(q=>q.enabled=on)}if(e.code==='KeyF'&&started)enter();if(e.code==='KeyH'&&drive)sfx('horn');if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
   document.addEventListener('keyup',e=>{K[e.code]=0});
-  b.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv||e.buttons&1){CM.yaw-=e.movementX*.0026;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+e.movementY*.0026));CM.idle=0}});b.addEventListener('wheel',e=>{if(!started||drive||deathState.active)return;e.preventDefault();e.stopPropagation();CM.dist=Math.max(3,Math.min(8.5,(CM.dist||4.4)+Math.sign(e.deltaY)*.45))},{passive:false});
+  b.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv||e.buttons&1){CM.yaw-=e.movementX*.0026;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+e.movementY*.0026));CM.idle=0}});
+  // Native touch camera input: update the game's real camera state directly.
+  // This avoids synthetic mouse events, which mobile browsers may ignore or retarget.
+  let touchLookPointer=null,touchLookLast=null;
+  const touchLookStart=e=>{
+   if(e.pointerType==='mouse'||!started||ov.style.display==='flex'||deathState.active||touchLookPointer!==null)return;
+   const r=cv.getBoundingClientRect();if(!r.width||e.clientX<r.left+r.width*.42)return;
+   e.preventDefault();touchLookPointer=e.pointerId;touchLookLast={x:e.clientX,y:e.clientY};
+   try{cv.setPointerCapture(e.pointerId)}catch(_){ }
+  };
+  const touchLookMove=e=>{
+   if(touchLookPointer!==e.pointerId||!touchLookLast)return;
+   e.preventDefault();const dx=e.clientX-touchLookLast.x,dy=e.clientY-touchLookLast.y;
+   touchLookLast={x:e.clientX,y:e.clientY};
+   const sens=Math.max(.5,Math.min(3,Number(window.__mtaTouchSensitivity)||1.35));
+   CM.yaw-=dx*.0026*sens;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+dy*.0026*sens));CM.idle=0;
+  };
+  const touchLookStop=e=>{if(touchLookPointer===e.pointerId){touchLookPointer=null;touchLookLast=null}};
+  cv.addEventListener('pointerdown',touchLookStart,{passive:false});
+  cv.addEventListener('pointermove',touchLookMove,{passive:false});
+  cv.addEventListener('pointerup',touchLookStop);cv.addEventListener('pointercancel',touchLookStop);cv.addEventListener('lostpointercapture',touchLookStop);
+  // Older mobile browsers without Pointer Events use the equivalent Touch Events path.
+  if(!window.PointerEvent){
+   let touchLookId=null;
+   cv.addEventListener('touchstart',e=>{if(!started||ov.style.display==='flex'||deathState.active||touchLookId!==null)return;const r=cv.getBoundingClientRect();const t=[...e.changedTouches].find(q=>q.clientX>=r.left+r.width*.42);if(t){touchLookId=t.identifier;touchLookLast={x:t.clientX,y:t.clientY};e.preventDefault()}},{passive:false});
+   cv.addEventListener('touchmove',e=>{if(touchLookId===null||!touchLookLast)return;const t=[...e.changedTouches].find(q=>q.identifier===touchLookId);if(!t)return;const dx=t.clientX-touchLookLast.x,dy=t.clientY-touchLookLast.y;touchLookLast={x:t.clientX,y:t.clientY};const sens=Math.max(.5,Math.min(3,Number(window.__mtaTouchSensitivity)||1.35));CM.yaw-=dx*.0026*sens;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+dy*.0026*sens));CM.idle=0;e.preventDefault()},{passive:false});
+   const stopTouchLook=e=>{if(touchLookId===null)return;if([...e.changedTouches].some(q=>q.identifier===touchLookId)){touchLookId=null;touchLookLast=null}};
+   cv.addEventListener('touchend',stopTouchLook);cv.addEventListener('touchcancel',stopTouchLook);
+  }
+  b.addEventListener('wheel',e=>{if(!started||drive||deathState.active)return;e.preventDefault();e.stopPropagation();CM.dist=Math.max(3,Math.min(8.5,(CM.dist||4.4)+Math.sign(e.deltaY)*.45))},{passive:false});
   let last=performance.now();
   /* ===== РЕАЛИСТИЧНИ ОБЛАЦИ, НЕБЕ И ТРЕВА С ФИЗИКА ===== */
   const LOWQ=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4;
@@ -1527,6 +1556,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
  const downKeys=new Set();
  let installedHost=null,stickPointer=null,lookPointer=null,lookLast=null,sensitivity=1.35;
  try{sensitivity=Math.max(.5,Math.min(3,Number(localStorage.getItem('mta.touchSensitivity'))||1.35))}catch(e){}
+ window.__mtaTouchSensitivity=sensitivity;
  const keyDetails={
   KeyW:{key:'w'},KeyA:{key:'a'},KeyS:{key:'s'},KeyD:{key:'d'},
   ShiftLeft:{key:'Shift'},Space:{key:' '},KeyF:{key:'f'},KeyH:{key:'h'},KeyC:{key:'c'}
@@ -1571,7 +1601,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   const head=document.createElement('div');head.className='mta-settings-head';head.innerHTML='<span>TOUCH SETTINGS</span>';
   const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Close settings');head.append(close);
   const row=document.createElement('div');row.className='mta-sensitivity-row';const label=document.createElement('label');label.textContent='Camera sensitivity';label.htmlFor='mtaTouchSensitivity';const val=document.createElement('strong');val.textContent=sensitivity.toFixed(1)+'×';row.append(label,val);
-  const range=document.createElement('input');range.id='mtaTouchSensitivity';range.type='range';range.min='.5';range.max='3';range.step='.1';range.value=String(sensitivity);range.addEventListener('input',()=>{sensitivity=Number(range.value);val.textContent=sensitivity.toFixed(1)+'×';try{localStorage.setItem('mta.touchSensitivity',String(sensitivity))}catch(e){}});
+  const range=document.createElement('input');range.id='mtaTouchSensitivity';range.type='range';range.min='.5';range.max='3';range.step='.1';range.value=String(sensitivity);range.addEventListener('input',()=>{sensitivity=Number(range.value);window.__mtaTouchSensitivity=sensitivity;val.textContent=sensitivity.toFixed(1)+'×';try{localStorage.setItem('mta.touchSensitivity',String(sensitivity))}catch(e){}});
   const foot=document.createElement('div');foot.className='mta-settings-foot';foot.textContent='Use the left joystick to move. Drag anywhere on the right side of the game to rotate the camera. Buttons work while held where appropriate.';
   panel.append(head,row,range,foot);close.addEventListener('click',()=>panel.hidden=true);settingsButton.addEventListener('click',()=>{panel.hidden=!panel.hidden;focusHost()});
   const rotate=document.createElement('div');rotate.className='mta-rotate-hint';rotate.innerHTML='LANDSCAPE RECOMMENDED<span>Rotate your phone for a wider view. Portrait mode still works.</span>';
@@ -1585,7 +1615,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   const menuOverlay=host.querySelector('.ov');
   const syncMenuVisibility=()=>{const menuOpen=!!menuOverlay&&getComputedStyle(menuOverlay).display!=='none';hud.style.opacity=menuOpen?'0':'1';hud.style.visibility=menuOpen?'hidden':'visible';hud.style.pointerEvents=menuOpen?'none':'auto'};
   if(menuOverlay){new MutationObserver(syncMenuVisibility).observe(menuOverlay,{attributes:true,attributeFilter:['style','class']});syncMenuVisibility()}
-  addCameraLook(canvas,host);
+  // Camera look is handled inside the game loop, where the live camera state is directly accessible.
   document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll()});
   host.addEventListener('pointerdown',e=>{if(e.target===canvas)focusHost()},{passive:true});
   window.addEventListener('blur',releaseAll);window.addEventListener('orientationchange',()=>setTimeout(()=>{if(host.isConnected)install()},250));
