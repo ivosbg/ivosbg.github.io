@@ -1245,7 +1245,7 @@ const pixTireSqueal=(amount,speed=0)=>{const was=skidWanted,x=(!SND.m&&SND.v)?Ma
     if(v.P.boat&&Math.hypot(v.x+40,v.z-(ps0-28))<24){ex=-40;ez=ps0-28}else if(v.P.boat||hf(ex,ez)<.1||blk(ex,ez,.4)){let ok=0;for(let r=4;r<90&&!ok;r+=3)for(let i=0;i<16;i++){const x=v.x+Math.cos(i*.39)*r,z=v.z+Math.sin(i*.39)*r;if(hf(x,z)>.3&&!blk(x,z,.5)){ex=x;ez=z;ok=1;break}}}
     PL.x=ex;PL.z=ez;PL.y=pier(ex,ez)?1.12:hf(ex,ez);PL.vy=0;resetDriverPose();ivo.visible=true;if(!v.P.boat&&Math.abs(v.v)>.5){v.vx=Math.sin(v.a)*v.v;v.vz=Math.cos(v.a)*v.v;v.w=0;v.free=0;v.st=0;v.side=0;v.coast=1;v.loose=1}else v.v=0;drive=null;sfx('board');if(RD.on)RD.au.pause();ODO.save();return}
    const n=near();if(n){drive=n;const isCar=!n.P.boat;ivo.visible=isCar;if(isCar){if(ivo.userData.action)ivo.userData.action.stop();ivo.userData.inVehicle=true}else resetDriverPose();sfx('board');if(RD.on)RD.au.play().catch(()=>{})}};
-  const camUp=dt=>{const crouch=!drive?(ivo.userData.crouch||0):0,tg=drive?new T.Vector3(drive.x,drive.P.boat?4:hf(drive.x,drive.z)+1.7,drive.z):new T.Vector3(PL.x,PL.y+1.58-.2*crouch,PL.z),dist=drive?(drive.P.boat?26:8.5):Math.max(3,Math.min(8.5,CM.dist||4.4));if(drive&&Math.abs(drive.v)>2&&CM.idle>1.2){let da=drive.a+Math.PI-CM.yaw;da=Math.atan2(Math.sin(da),Math.cos(da));CM.yaw+=da*Math.min(1,dt*1.6)}CM.idle+=dt;const cp=Math.cos(CM.pitch);let safe=dist;if(!drive){for(let d=.8;d<dist;d+=.28){const x=tg.x+Math.sin(CM.yaw)*cp*d,z=tg.z+Math.cos(CM.yaw)*cp*d;if(blk(x,z,.28)){safe=Math.max(1,d-.38);break}}}const cx=tg.x+Math.sin(CM.yaw)*cp*safe,cz=tg.z+Math.cos(CM.yaw)*cp*safe,cy=Math.max(tg.y+Math.sin(CM.pitch)*safe,hf(cx,cz)+.7,.6);cam.position.set(cx,cy,cz);CR.camFx(dt);cam.lookAt(tg)};const HEALTH_MAX=100;let health=HEALTH_MAX,lastDamageAt=-9999,deathState={active:false,time:0,target:null,from:null};
+  const camUp=dt=>{const crouch=!drive?(ivo.userData.crouch||0):0,tg=drive?new T.Vector3(drive.x,drive.P.boat?4:hf(drive.x,drive.z)+1.7,drive.z):new T.Vector3(PL.x,PL.y+1.58-.2*crouch,PL.z),dist=drive?(drive.P.boat?26:8.5):Math.max(3,Math.min(8.5,CM.dist||4.4));if(drive&&Math.abs(drive.v)>2&&CM.idle>1.2&&performance.now()>(CM.touchUntil||0)){let da=drive.a+Math.PI-CM.yaw;da=Math.atan2(Math.sin(da),Math.cos(da));CM.yaw+=da*Math.min(1,dt*1.6)}CM.idle+=dt;const cp=Math.cos(CM.pitch);let safe=dist;if(!drive){for(let d=.8;d<dist;d+=.28){const x=tg.x+Math.sin(CM.yaw)*cp*d,z=tg.z+Math.cos(CM.yaw)*cp*d;if(blk(x,z,.28)){safe=Math.max(1,d-.38);break}}}const cx=tg.x+Math.sin(CM.yaw)*cp*safe,cz=tg.z+Math.cos(CM.yaw)*cp*safe,cy=Math.max(tg.y+Math.sin(CM.pitch)*safe,hf(cx,cz)+.7,.6);cam.position.set(cx,cy,cz);CR.camFx(dt);cam.lookAt(tg)};const HEALTH_MAX=100;let health=HEALTH_MAX,lastDamageAt=-9999,deathState={active:false,time:0,target:null,from:null};
 const setHealthUI=()=>{const q=Math.max(0,Math.min(1,health/HEALTH_MAX));hpFill.style.width=(q*100)+'%';hpFill.style.background=q>.55?'linear-gradient(90deg,#47c978,#9be66b)':q>.25?'linear-gradient(90deg,#d7a733,#ffd56b)':'linear-gradient(90deg,#b92b2b,#ff625b)';hpText.textContent=Math.ceil(health)+'%';hpWrap.setAttribute('aria-label','Health '+Math.ceil(health)+' percent')};
 const startDeath=()=>{if(deathState.active)return;deathState={active:true,time:0,target:drive?new T.Vector3(drive.x,drive.P.boat?4:hf(drive.x,drive.z)+.5,drive.z):new T.Vector3(PL.x,PL.y+.4,PL.z),from:cam.position.clone()};started=0;for(const k in K)K[k]=0;saveClock=0;hpWrap.style.display='none';hud.style.opacity='0';pr.style.opacity='0';ov.style.display='none';deathTitle.style.opacity='0';deathHint.style.opacity='0';deathTitle.style.transform='translateY(14px)';respawnBtn.hidden=true;deathLayer.style.display='flex';cv.style.transition='filter 3.1s ease';cv.style.filter='grayscale(1) contrast(1.28) brightness(.68) blur(1.2px)';b.focus();if(document.exitPointerLock)document.exitPointerLock()};
 const applyCrashDamage=(speed,impulse)=>{if(!started||deathState.active||!Number.isFinite(speed)||!Number.isFinite(impulse)||speed<2.7||impulse<1.6)return;const now=performance.now();if(now-lastDamageAt<460)return;lastDamageAt=now;const damage=Math.min(100,Math.max(1,Math.pow(Math.max(0,impulse-1.5),1.12)*2.15+Math.max(0,speed-7)*1.8));health=Math.max(0,health-damage);setHealthUI();try{damageFlash.animate([{opacity:.48},{opacity:0}],{duration:260,easing:'ease-out'});hpWrap.animate([{transform:'translateX(0)'},{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:230})}catch(e){}if(health<=0)startDeath()};
@@ -1265,34 +1265,17 @@ const showStartMenu=()=>{ov.style.display='flex';ov.style.background='radial-gra
   document.addEventListener('keydown',e=>{if(b.dead||!act())return;K[e.code]=1;if(e.code==='KeyM'&&started)mpBig=!mpBig;if(e.code==='KeyN'&&started){TOD.t=(TOD.t+.125)%1;TOD.paint=1}if(e.code==='KeyR'&&drive&&started)radio(!RD.on);if(e.code==='KeyT'&&drive&&started)ODO.trip=0;if(e.code==='KeyY'&&drive&&started)CR.repair(drive);if(e.code==='KeyG'&&started&&FX.setHDR)FX.setHDR(!FX.on);if(e.code==='KeyO'&&started&&FX.ssao&&FX.on){const on=!FX.ssao[0].enabled;FX.ssao.forEach(q=>q.enabled=on)}if(e.code==='KeyF'&&started)enter();if(e.code==='KeyH'&&drive)sfx('horn');if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
   document.addEventListener('keyup',e=>{K[e.code]=0});
   b.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv||e.buttons&1){CM.yaw-=e.movementX*.0026;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+e.movementY*.0026));CM.idle=0}});
-  // Native touch camera input: update the game's real camera state directly.
-  // This avoids synthetic mouse events, which mobile browsers may ignore or retarget.
-  let touchLookPointer=null,touchLookLast=null;
-  const touchLookStart=e=>{
-   if(e.pointerType==='mouse'||!started||ov.style.display==='flex'||deathState.active||touchLookPointer!==null)return;
-   const r=cv.getBoundingClientRect();if(!r.width||e.clientX<r.left+r.width*.42)return;
-   e.preventDefault();touchLookPointer=e.pointerId;touchLookLast={x:e.clientX,y:e.clientY};
-   try{cv.setPointerCapture(e.pointerId)}catch(_){ }
-  };
-  const touchLookMove=e=>{
-   if(touchLookPointer!==e.pointerId||!touchLookLast)return;
-   e.preventDefault();const dx=e.clientX-touchLookLast.x,dy=e.clientY-touchLookLast.y;
-   touchLookLast={x:e.clientX,y:e.clientY};
-   const sens=Math.max(.5,Math.min(3,Number(window.__mtaTouchSensitivity)||1.35));
-   CM.yaw-=dx*.0026*sens;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+dy*.0026*sens));CM.idle=0;
-  };
-  const touchLookStop=e=>{if(touchLookPointer===e.pointerId){touchLookPointer=null;touchLookLast=null}};
-  cv.addEventListener('pointerdown',touchLookStart,{passive:false});
-  cv.addEventListener('pointermove',touchLookMove,{passive:false});
-  cv.addEventListener('pointerup',touchLookStop);cv.addEventListener('pointercancel',touchLookStop);cv.addEventListener('lostpointercapture',touchLookStop);
-  // Older mobile browsers without Pointer Events use the equivalent Touch Events path.
-  if(!window.PointerEvent){
-   let touchLookId=null;
-   cv.addEventListener('touchstart',e=>{if(!started||ov.style.display==='flex'||deathState.active||touchLookId!==null)return;const r=cv.getBoundingClientRect();const t=[...e.changedTouches].find(q=>q.clientX>=r.left+r.width*.42);if(t){touchLookId=t.identifier;touchLookLast={x:t.clientX,y:t.clientY};e.preventDefault()}},{passive:false});
-   cv.addEventListener('touchmove',e=>{if(touchLookId===null||!touchLookLast)return;const t=[...e.changedTouches].find(q=>q.identifier===touchLookId);if(!t)return;const dx=t.clientX-touchLookLast.x,dy=t.clientY-touchLookLast.y;touchLookLast={x:t.clientX,y:t.clientY};const sens=Math.max(.5,Math.min(3,Number(window.__mtaTouchSensitivity)||1.35));CM.yaw-=dx*.0026*sens;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+dy*.0026*sens));CM.idle=0;e.preventDefault()},{passive:false});
-   const stopTouchLook=e=>{if(touchLookId===null)return;if([...e.changedTouches].some(q=>q.identifier===touchLookId)){touchLookId=null;touchLookLast=null}};
-   cv.addEventListener('touchend',stopTouchLook);cv.addEventListener('touchcancel',stopTouchLook);
-  }
+  // Receive camera deltas from the dedicated mobile look zone in the outer HUD.
+  // This avoids depending on canvas hit-testing or synthetic mouse movement.
+  b.addEventListener('mta:lookdelta',e=>{
+   if(!started||ov.style.display==='flex')return;
+   const d=e.detail||{},dx=Number(d.dx)||0,dy=Number(d.dy)||0;
+   const sens=Math.max(.5,Math.min(3,Number(d.sensitivity)||1.35));
+   if(!dx&&!dy)return;
+   CM.yaw-=dx*.0026*sens;
+   CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+dy*.0026*sens));
+   CM.idle=0;CM.touchUntil=performance.now()+2800;
+  });
   b.addEventListener('wheel',e=>{if(!started||drive||deathState.active)return;e.preventDefault();e.stopPropagation();CM.dist=Math.max(3,Math.min(8.5,(CM.dist||4.4)+Math.sign(e.deltaY)*.45))},{passive:false});
   let last=performance.now();
   /* ===== РЕАЛИСТИЧНИ ОБЛАЦИ, НЕБЕ И ТРЕВА С ФИЗИКА ===== */
@@ -1516,6 +1499,8 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
  body.solo .bd>canvas{touch-action:none;-webkit-tap-highlight-color:transparent}
  .mta-mobile-hud{position:absolute;inset:0;z-index:100;overflow:hidden;pointer-events:none;user-select:none;-webkit-user-select:none;touch-action:none;font-family:Inter,"Segoe UI",system-ui,sans-serif;color:#fff;padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));}
  .mta-mobile-hud *{box-sizing:border-box}
+ .mta-camera-zone{position:absolute;left:42%;right:0;top:0;bottom:0;z-index:0;display:block;pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;background:transparent}
+ .mta-hud-top,.mta-stick-zone,.mta-action-cluster,.mta-settings-panel{z-index:2}
  .mta-hud-top{position:absolute;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));display:flex;gap:8px;align-items:center;pointer-events:auto}
  .mta-hud-pill{padding:7px 11px;border:1px solid #ffffff30;border-radius:999px;background:linear-gradient(135deg,#101a2dcc,#26354dcc);box-shadow:0 5px 18px #0006;font-size:10px;font-weight:850;letter-spacing:.16em;color:#e8edf5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
  .mta-hud-icon{width:42px;height:42px;border:1px solid #ffffff50;border-radius:14px;background:linear-gradient(145deg,#25354ddd,#0b1424dd);color:#fff;font-size:19px;font-weight:800;box-shadow:0 5px 17px #0007;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);touch-action:manipulation}
@@ -1575,18 +1560,22 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   let active=false;const start=e=>{e.preventDefault();e.stopPropagation();focusHost();try{button.setPointerCapture(e.pointerId)}catch(_){}if(hold){if(!active){active=true;button.classList.add('active');setKey(code,true)}}else{tapKey(code);button.classList.add('active');setTimeout(()=>button.classList.remove('active'),130)}};const end=e=>{if(e){e.preventDefault();e.stopPropagation()}if(hold&&active){active=false;button.classList.remove('active');setKey(code,false)}focusHost()};
   button.addEventListener('pointerdown',start);['pointerup','pointercancel','lostpointercapture'].forEach(type=>button.addEventListener(type,end));button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();focusHost()});return button;
  }
- // Emit touch deltas from the canvas so the game's existing bubbling mouse-look handler receives them.
- function sendLook(canvas,dx,dy){if(!dx&&!dy)return;const ev=new MouseEvent('mousemove',{view:window,bubbles:true,cancelable:false,buttons:1});Object.defineProperties(ev,{movementX:{configurable:true,value:dx*sensitivity},movementY:{configurable:true,value:dy*sensitivity},buttons:{configurable:true,value:1}});canvas.dispatchEvent(ev)}
- function addCameraLook(canvas,host){canvas.style.touchAction='none';canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||lookPointer!==null)return;const r=canvas.getBoundingClientRect();if(!r.width||!r.height||e.clientX<r.left+r.width*.42)return;e.preventDefault();focusHost();lookPointer=e.pointerId;lookLast={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(lookPointer!==e.pointerId||!lookLast)return;e.preventDefault();const dx=e.clientX-lookLast.x,dy=e.clientY-lookLast.y;lookLast={x:e.clientX,y:e.clientY};sendLook(canvas,dx,dy)},{passive:false});
-  const stop=e=>{if(lookPointer===e.pointerId){lookPointer=null;lookLast=null;focusHost()}};canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('lostpointercapture',stop);
- }
  function install(){
   if(!phoneLike())return;
   const canvas=[...document.querySelectorAll('canvas')].find(c=>c.offsetWidth>200&&c.offsetHeight>150&&c.closest('.bd'));
   if(!canvas)return;const host=canvas.closest('.bd');if(!host||host.querySelector('.mta-mobile-hud'))return;
   installedHost=host;host.tabIndex=0;host.style.touchAction='none';host.style.overflow='hidden';canvas.style.touchAction='none';
   const hud=document.createElement('div');hud.className='mta-mobile-hud';hud.setAttribute('aria-label','Mobile game controls');
+  const cameraZone=document.createElement('div');cameraZone.className='mta-camera-zone';cameraZone.setAttribute('aria-label','Drag here to rotate the camera');cameraZone.setAttribute('role','presentation');
+  let cameraPointer=null,cameraLast=null;
+  const emitCameraDelta=(dx,dy)=>{if(!dx&&!dy)return;host.dispatchEvent(new CustomEvent('mta:lookdelta',{detail:{dx,dy,sensitivity},bubbles:false}))};
+  const beginCameraLook=e=>{if(e.pointerType==='mouse'||cameraPointer!==null)return;e.preventDefault();e.stopPropagation();focusHost();cameraPointer=e.pointerId;cameraLast={x:e.clientX,y:e.clientY};try{cameraZone.setPointerCapture(e.pointerId)}catch(_){}};
+  const moveCameraLook=e=>{if(cameraPointer!==e.pointerId||!cameraLast)return;e.preventDefault();e.stopPropagation();const dx=e.clientX-cameraLast.x,dy=e.clientY-cameraLast.y;cameraLast={x:e.clientX,y:e.clientY};emitCameraDelta(dx,dy)};
+  const endCameraLook=e=>{if(cameraPointer!==e.pointerId)return;if(e){e.preventDefault();e.stopPropagation()}cameraPointer=null;cameraLast=null;focusHost()};
+  cameraZone.addEventListener('pointerdown',beginCameraLook,{passive:false});cameraZone.addEventListener('pointermove',moveCameraLook,{passive:false});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>cameraZone.addEventListener(type,endCameraLook));
+  // Legacy fallback for browsers without Pointer Events.
+  if(!window.PointerEvent){let touchId=null;cameraZone.addEventListener('touchstart',e=>{if(touchId!==null)return;const t=e.changedTouches[0];if(!t)return;e.preventDefault();touchId=t.identifier;cameraLast={x:t.clientX,y:t.clientY};focusHost()},{passive:false});cameraZone.addEventListener('touchmove',e=>{if(touchId===null||!cameraLast)return;const t=[...e.changedTouches].find(q=>q.identifier===touchId);if(!t)return;e.preventDefault();const dx=t.clientX-cameraLast.x,dy=t.clientY-cameraLast.y;cameraLast={x:t.clientX,y:t.clientY};emitCameraDelta(dx,dy)},{passive:false});const endTouch=e=>{if(touchId===null)return;if([...e.changedTouches].some(q=>q.identifier===touchId)){touchId=null;cameraLast=null;focusHost()}};cameraZone.addEventListener('touchend',endTouch);cameraZone.addEventListener('touchcancel',endTouch)}
   const top=document.createElement('div');top.className='mta-hud-top';
   const mode=document.createElement('div');mode.className='mta-hud-pill';mode.textContent='MOBILE MODE';
   const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.className='mta-hud-icon';settingsButton.textContent='⚙';settingsButton.setAttribute('aria-label','Touch settings');
@@ -1605,7 +1594,7 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   const foot=document.createElement('div');foot.className='mta-settings-foot';foot.textContent='Use the left joystick to move. Drag anywhere on the right side of the game to rotate the camera. Buttons work while held where appropriate.';
   panel.append(head,row,range,foot);close.addEventListener('click',()=>panel.hidden=true);settingsButton.addEventListener('click',()=>{panel.hidden=!panel.hidden;focusHost()});
   const rotate=document.createElement('div');rotate.className='mta-rotate-hint';rotate.innerHTML='LANDSCAPE RECOMMENDED<span>Rotate your phone for a wider view. Portrait mode still works.</span>';
-  hud.append(top,tip,stickZone,actions,panel,rotate);host.append(hud);fullscreenButton(full,host);
+  hud.append(cameraZone,top,tip,stickZone,actions,panel,rotate);host.append(hud);fullscreenButton(full,host);
   hud.addEventListener('pointerup',()=>setTimeout(focusHost,0),{passive:true});
   const radius=42;let stickRect=null;
   const moveStick=e=>{if(stickPointer!==e.pointerId)return;e.preventDefault();const r=stick.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const len=Math.hypot(dx,dy),scale=len>radius?radius/len:1;dx*=scale;dy*=scale;knob.style.transform=`translate(${dx}px,${dy}px)`;setStickKeys(dx/radius,dy/radius)};
