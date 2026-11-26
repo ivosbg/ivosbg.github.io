@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#080b12"><title>Mario Theft Auto</title><style>body.solo #desk,body.solo #bar,body.solo #sm,body.solo #cm,body.solo #off,body.solo .ic{display:none!important}html,body{margin:0;overflow:hidden;background:#000}body.solo .bd{border:0!important;border-radius:0!important;box-shadow:none!important}</style><style>
+﻿<!DOCTYPE html><html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#080b12"><title>Mario Theft Auto</title><style>body.solo #desk,body.solo #bar,body.solo #sm,body.solo #cm,body.solo #off,body.solo .ic{display:none!important}html,body{margin:0;overflow:hidden;background:#000}body.solo .bd{border:0!important;border-radius:0!important;box-shadow:none!important}</style><style>
 :root{--t:rgba(60,170,230,.5)}
 *{box-sizing:border-box;margin:0;font-family:"Segoe UI",system-ui,sans-serif}
 html,body{height:100%;overflow:hidden;user-select:none;background:#0a3a66}
@@ -1531,8 +1531,8 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   KeyW:{key:'w'},KeyA:{key:'a'},KeyS:{key:'s'},KeyD:{key:'d'},
   ShiftLeft:{key:'Shift'},Space:{key:' '},KeyF:{key:'f'},KeyH:{key:'h'},KeyC:{key:'c'}
  };
- const focusHost=()=>{if(installedHost&&installedHost.isConnected)installedHost.focus({preventScroll:true})};
- function setKey(code,pressed){const d=keyDetails[code];if(!d)return;const has=downKeys.has(code);if(has===pressed)return;if(pressed)downKeys.add(code);else downKeys.delete(code);const ev=new KeyboardEvent(pressed?'keydown':'keyup',{key:d.key,code,bubbles:true,cancelable:true});document.dispatchEvent(ev)}
+ const focusHost=()=>{if(installedHost&&installedHost.isConnected){try{installedHost.focus({preventScroll:true})}catch(_){installedHost.focus()}}};
+ function setKey(code,pressed){const d=keyDetails[code];if(!d)return;const has=downKeys.has(code);if(has===pressed)return;if(pressed){focusHost();downKeys.add(code)}else downKeys.delete(code);const ev=new KeyboardEvent(pressed?'keydown':'keyup',{key:d.key,code,bubbles:true,cancelable:true});document.dispatchEvent(ev)}
  function releaseAll(){[...downKeys].forEach(code=>setKey(code,false));stickPointer=null;lookPointer=null;lookLast=null}
  function setStickKeys(x,y){setKey('KeyA',x<-.26);setKey('KeyD',x>.26);setKey('KeyW',y<-.26);setKey('KeyS',y>.26)}
  function tapKey(code){setKey(code,true);setTimeout(()=>setKey(code,false),90)}
@@ -1541,14 +1541,15 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   button.addEventListener('click',async e=>{e.preventDefault();e.stopPropagation();focusHost();try{if(document.fullscreenElement||document.webkitFullscreenElement){if(document.exitFullscreen)await document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}else if(host.requestFullscreen){await host.requestFullscreen({navigationUI:'hide'});}else if(host.webkitRequestFullscreen){host.webkitRequestFullscreen();}else{document.body.classList.toggle('mta-immersive-fallback');} }catch(err){document.body.classList.toggle('mta-immersive-fallback');}update()});
   document.addEventListener('fullscreenchange',update);document.addEventListener('webkitfullscreenchange',update);update();
  }
- function makeAction(label,symbol,code,kind,hold){const button=document.createElement('button');button.type='button';button.className='mta-hud-action '+(kind||'');button.setAttribute('aria-label',label);button.innerHTML='<span class="mta-action-symbol">'+symbol+'</span><span>'+label+'</span>';
-  let active=false;const start=e=>{e.preventDefault();e.stopPropagation();focusHost();if(hold){if(!active){active=true;button.classList.add('active');setKey(code,true)}}else{tapKey(code);button.classList.add('active');setTimeout(()=>button.classList.remove('active'),130)}};const end=e=>{if(e){e.preventDefault();e.stopPropagation()}if(hold&&active){active=false;button.classList.remove('active');setKey(code,false)}};
-  button.addEventListener('pointerdown',start);['pointerup','pointercancel','lostpointercapture','pointerleave'].forEach(type=>button.addEventListener(type,end));return button;
+ function makeAction(label,symbol,code,kind,hold){const button=document.createElement('button');button.type='button';button.tabIndex=-1;button.className='mta-hud-action '+(kind||'');button.setAttribute('aria-label',label);button.innerHTML='<span class="mta-action-symbol">'+symbol+'</span><span>'+label+'</span>';
+  let active=false;const start=e=>{e.preventDefault();e.stopPropagation();focusHost();try{button.setPointerCapture(e.pointerId)}catch(_){}if(hold){if(!active){active=true;button.classList.add('active');setKey(code,true)}}else{tapKey(code);button.classList.add('active');setTimeout(()=>button.classList.remove('active'),130)}};const end=e=>{if(e){e.preventDefault();e.stopPropagation()}if(hold&&active){active=false;button.classList.remove('active');setKey(code,false)}focusHost()};
+  button.addEventListener('pointerdown',start);['pointerup','pointercancel','lostpointercapture'].forEach(type=>button.addEventListener(type,end));button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();focusHost()});return button;
  }
- function sendLook(host,dx,dy){const ev=new MouseEvent('mousemove',{bubbles:true,cancelable:false});Object.defineProperties(ev,{movementX:{value:dx*sensitivity},movementY:{value:dy*sensitivity},buttons:{value:1}});host.dispatchEvent(ev)}
- function addCameraLook(canvas,host){canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;if(e.clientX<innerWidth*.38||e.clientY>innerHeight*.88)return;focusHost();lookPointer=e.pointerId;lookLast={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}},{passive:false});
-  canvas.addEventListener('pointermove',e=>{if(lookPointer!==e.pointerId||!lookLast)return;e.preventDefault();const dx=e.clientX-lookLast.x,dy=e.clientY-lookLast.y;lookLast={x:e.clientX,y:e.clientY};sendLook(host,dx,dy)},{passive:false});
-  const stop=e=>{if(lookPointer===e.pointerId){lookPointer=null;lookLast=null}};canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('lostpointercapture',stop);
+ // Emit touch deltas from the canvas so the game's existing bubbling mouse-look handler receives them.
+ function sendLook(canvas,dx,dy){if(!dx&&!dy)return;const ev=new MouseEvent('mousemove',{view:window,bubbles:true,cancelable:false,buttons:1});Object.defineProperties(ev,{movementX:{configurable:true,value:dx*sensitivity},movementY:{configurable:true,value:dy*sensitivity},buttons:{configurable:true,value:1}});canvas.dispatchEvent(ev)}
+ function addCameraLook(canvas,host){canvas.style.touchAction='none';canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||lookPointer!==null)return;const r=canvas.getBoundingClientRect();if(!r.width||!r.height||e.clientX<r.left+r.width*.42)return;e.preventDefault();focusHost();lookPointer=e.pointerId;lookLast={x:e.clientX,y:e.clientY};try{canvas.setPointerCapture(e.pointerId)}catch(_){}},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(lookPointer!==e.pointerId||!lookLast)return;e.preventDefault();const dx=e.clientX-lookLast.x,dy=e.clientY-lookLast.y;lookLast={x:e.clientX,y:e.clientY};sendLook(canvas,dx,dy)},{passive:false});
+  const stop=e=>{if(lookPointer===e.pointerId){lookPointer=null;lookLast=null;focusHost()}};canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('lostpointercapture',stop);
  }
  function install(){
   if(!phoneLike())return;
@@ -1575,9 +1576,10 @@ addEventListener('pointerdown',()=>{au()},{once:true,capture:true});
   panel.append(head,row,range,foot);close.addEventListener('click',()=>panel.hidden=true);settingsButton.addEventListener('click',()=>{panel.hidden=!panel.hidden;focusHost()});
   const rotate=document.createElement('div');rotate.className='mta-rotate-hint';rotate.innerHTML='LANDSCAPE RECOMMENDED<span>Rotate your phone for a wider view. Portrait mode still works.</span>';
   hud.append(top,tip,stickZone,actions,panel,rotate);host.append(hud);fullscreenButton(full,host);
+  hud.addEventListener('pointerup',()=>setTimeout(focusHost,0),{passive:true});
   const radius=42;let stickRect=null;
   const moveStick=e=>{if(stickPointer!==e.pointerId)return;e.preventDefault();const r=stick.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const len=Math.hypot(dx,dy),scale=len>radius?radius/len:1;dx*=scale;dy*=scale;knob.style.transform=`translate(${dx}px,${dy}px)`;setStickKeys(dx/radius,dy/radius)};
-  const stopStick=e=>{if(stickPointer!==e.pointerId)return;stickPointer=null;knob.style.transform='translate(0,0)';setStickKeys(0,0)};
+  const stopStick=e=>{if(stickPointer!==e.pointerId)return;stickPointer=null;knob.style.transform='translate(0,0)';setStickKeys(0,0);focusHost()};
   stick.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();focusHost();stickPointer=e.pointerId;try{stick.setPointerCapture(e.pointerId)}catch(_){}moveStick(e)});stick.addEventListener('pointermove',moveStick);stick.addEventListener('pointerup',stopStick);stick.addEventListener('pointercancel',stopStick);stick.addEventListener('lostpointercapture',stopStick);
   // Keep gameplay controls out of the way of start, pause and continue menus.
   const menuOverlay=host.querySelector('.ov');
