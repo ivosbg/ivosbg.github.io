@@ -1023,7 +1023,7 @@ gl_FragColor=vec4(c,clamp(mix(.5,.97,clamp(vd/2.5,0.,1.))+f*.3+foam,0.,1.));}`})
      FX.comp=comp;FX.loading=0;if(FX.want){FX.on=true;cv.style.filter='';vig.style.display='none'}
     }catch(e){console.warn('post',e);FX.comp=null;FX.loading=0}})};
    /* HDR ефектът (HDR буфер + bloom + ACES) работи само ако екранът е в HDR режим; иначе — класическо SDR рисуване */
-   const setHDR=on=>{FX.want=!!on;if(on&&!FX.comp){initPost();return}FX.on=!!on&&!!FX.comp;if(FX.on){cv.style.filter='';vig.style.display='none'}else{cv.style.filter='contrast(1.06) saturate(1.15)';vig.style.display=''}};
+   const setHDR=on=>{FX.want=false;FX.on=false;cv.style.filter='contrast(1.06) saturate(1.15)';vig.style.display=''};/* HDR disabled */
    FX.setHDR=setHDR;let mq=null;try{mq=matchMedia('(dynamic-range: high)')}catch(e){}
    setHDR(!!(mq&&mq.matches===true));if(mq&&mq.addEventListener)mq.addEventListener('change',()=>setHDR(mq.matches===true))}
   /* логика */
@@ -1300,7 +1300,7 @@ const showStartMenu=()=>{ov.style.display='flex';ov.style.background='radial-gra
   document.addEventListener('pointerlockchange',()=>{if(!b.dead&&started&&document.pointerLockElement!==cv&&ov.style.display!=='flex'){saveGame();msg('Пауза','Кликнете, за да продължите.','▶ Продължи',lock);ov.append(h('button',{class:'b big',style:'margin-top:8px',onclick:e=>{e.stopPropagation();gfxUI()}},'⚙ Graphics'))}});
   const RD={on:0,au:null};
   const radio=on=>{RD.on=on;if(on){if(!RD.au){const d=document.getElementById('radiomp3');RD.au=new Audio('data:audio/mpeg;base64,'+d.textContent.trim());RD.au.loop=true;RD.au.volume=.85;b.radioFr=RD.au}RD.au.play().catch(()=>{})}else RD.au&&RD.au.pause()};
-  document.addEventListener('keydown',e=>{if(b.dead||!act())return;K[e.code]=1;if(e.code==='KeyM'&&started)mpBig=!mpBig;if(e.code==='KeyN'&&started){TOD.t=(TOD.t+.125)%1;TOD.paint=1}if(e.code==='KeyR'&&drive&&started)radio(!RD.on);if(e.code==='KeyT'&&drive&&started)ODO.trip=0;if(e.code==='KeyY'&&drive&&started)CR.repair(drive);if(e.code==='KeyG'&&started&&FX.setHDR)FX.setHDR(!FX.on);if(e.code==='KeyO'&&started&&FX.ssao&&FX.on){const on=!FX.ssao[0].enabled;FX.ssao.forEach(q=>q.enabled=on)}if(e.code==='KeyF'&&started)enter();if(e.code==='KeyH'&&drive)sfx('horn');if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
+  document.addEventListener('keydown',e=>{if(b.dead||!act())return;K[e.code]=1;if(e.code==='KeyM'&&started)mpBig=!mpBig;if(e.code==='KeyN'&&started){TOD.t=(TOD.t+.125)%1;TOD.paint=1}if(e.code==='KeyR'&&drive&&started)radio(!RD.on);if(e.code==='KeyT'&&drive&&started)ODO.trip=0;if(e.code==='KeyY'&&drive&&started)CR.repair(drive);if(e.code==='KeyF'&&started)enter();if(e.code==='KeyH'&&drive)sfx('horn');if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
   document.addEventListener('keyup',e=>{K[e.code]=0});
   b.addEventListener('mousemove',e=>{if(document.pointerLockElement===cv||e.buttons&1){CM.yaw-=e.movementX*.0026;CM.pitch=Math.max(-.15,Math.min(1.25,CM.pitch+e.movementY*.0026));CM.idle=0}});b.addEventListener('wheel',e=>{if(!started||drive||deathState.active)return;e.preventDefault();e.stopPropagation();CM.dist=Math.max(3,Math.min(8.5,(CM.dist||4.4)+Math.sign(e.deltaY)*.45))},{passive:false});
   let last=performance.now();
