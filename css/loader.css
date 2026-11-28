@@ -1,0 +1,152 @@
+#cinemaLoader{position:fixed;inset:0;z-index:2147483000;overflow:hidden;background:#080a0c;color:#f4f0e7;font-family:Arial,"Segoe UI",sans-serif;opacity:0;visibility:hidden;transition:opacity 1700ms ease,visibility 1700ms ease;isolation:isolate}
+#cinemaLoader.is-started{opacity:1;visibility:visible}
+#cinemaLoader.is-done{opacity:0;visibility:hidden;pointer-events:none}
+#cinemaLoader::before,#cinemaLoader::after{content:"";position:absolute;left:0;right:0;height:clamp(20px,3.4vh,44px);z-index:30;pointer-events:none;background:linear-gradient(180deg,#030405 0%,#090a0b 72%,rgba(8,9,10,.78) 100%);box-shadow:0 4px 16px rgba(0,0,0,.35)}
+#cinemaLoader::before{top:0}
+#cinemaLoader::after{bottom:0;transform:rotate(180deg)}
+#launchIntro{position:fixed;inset:0;z-index:2147483002;display:flex;align-items:center;justify-content:center;background:#000;opacity:1;visibility:visible;transition:opacity 1400ms ease,visibility 1400ms ease}
+#launchIntro.is-exiting{opacity:0;visibility:hidden;pointer-events:none}
+#launchEnter{min-width:150px;padding:18px 28px;border:1px solid rgba(255,255,255,.62);background:transparent;color:#f3f1ec;font:700 15px Arial,"Segoe UI",sans-serif;letter-spacing:.42em;text-indent:.42em;cursor:pointer;transition:color .25s ease,border-color .25s ease,background .25s ease}
+#launchEnter:hover,#launchEnter:focus-visible{color:#e6c887;border-color:#e6c887;background:rgba(255,255,255,.06);outline:none}
+#launchEnter:disabled{opacity:0;pointer-events:none}
+#cinemaAudioHint{position:absolute;z-index:5;right:clamp(20px,6vw,112px);bottom:clamp(24px,5vh,56px);max-width:min(440px,70vw);padding:10px 13px;border:1px solid rgba(227,189,116,.42);border-radius:3px;background:rgba(7,10,12,.64);color:#f0cf91;font-size:10px;font-weight:700;letter-spacing:.14em;text-align:center;text-transform:uppercase;pointer-events:none;opacity:0;transition:opacity .25s ease}
+#cinemaAudioHint.is-visible{opacity:1}
+#cinemaLoader .cinema-scene{position:absolute;inset:0;overflow:hidden;perspective:1250px;transform-style:preserve-3d;backface-visibility:hidden;opacity:0;transition:opacity 2400ms cubic-bezier(.4,0,.2,1);will-change:opacity}
+#cinemaLoader .cinema-scene.is-active{opacity:1;z-index:2}
+#cinemaLoader .cinema-scene.is-outgoing{opacity:1;z-index:1}
+#cinemaLoader .cinema-bg{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:center 52%;filter:saturate(.82) contrast(1.08) brightness(.82);transform:scale(1.02);animation:cinemaDrift 22s linear infinite;will-change:transform}
+#cinemaScene2 .cinema-bg{object-position:center 55%;filter:saturate(.84) contrast(1.08) brightness(.78);animation-duration:26s}
+@keyframes cinemaDrift{from{transform:translate3d(2.5%,.25%,0) rotateY(-1.8deg) scale(1.07)}to{transform:translate3d(-2.8%,-.8%,35px) rotateY(1.8deg) scale(1.16)}}
+#cinemaLoader .cinema-grade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,12,.76) 0%,rgba(5,8,12,.48) 35%,rgba(5,8,12,.08) 72%),linear-gradient(0deg,rgba(3,6,8,.78) 0%,transparent 48%,rgba(5,8,12,.15) 100%)}
+#cinemaLoader .cinema-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 55% 42%,transparent 35%,rgba(0,0,0,.38) 100%)}
+#cinemaLoader .cinema-subject{position:absolute;bottom:-5vh;height:min(78vh,1000px);width:auto;max-width:48vw;object-fit:contain;object-position:center bottom;filter:saturate(.88) contrast(1.04) brightness(.96) drop-shadow(0 22px 32px rgba(0,0,0,.48));transform:translateX(-8%) scale(1);transform-origin:center bottom;animation:subjectDrift 15s ease-in-out infinite alternate;will-change:transform}
+#cinemaScene1 .cinema-subject{left:67%;height:min(76vh,980px)}
+#cinemaScene2 .cinema-subject{left:66%;height:min(79vh,1020px);animation-duration:18s}
+@keyframes subjectDrift{from{transform:translate3d(3%,0,70px) rotateY(-2deg) scale(.98)}to{transform:translate3d(-6%,0,15px) rotateY(2deg) scale(1.08)}}
+#cinemaLoader .cinema-ground-shadow{position:absolute;bottom:2.6vh;left:73%;width:min(24vw,420px);height:32px;transform:translateX(-20%);background:radial-gradient(ellipse,rgba(5,7,8,.52) 0%,rgba(5,7,8,.22) 42%,transparent 73%);filter:blur(5px)}
+#cinemaLoader .cinema-grain{position:absolute;inset:-50%;pointer-events:none;opacity:.12;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");mix-blend-mode:soft-light;animation:grainJitter .32s steps(2) infinite}
+@keyframes grainJitter{0%{transform:translate(0,0)}25%{transform:translate(-1%,1%)}50%{transform:translate(1%,-1%)}75%{transform:translate(1%,1%)}100%{transform:translate(-1%,-1%)}}
+#cinemaLoader .cinema-shell{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(26px,5vw,82px) clamp(24px,6vw,112px) clamp(30px,5vh,62px)}
+#cinemaLoader .cinema-topline{display:flex;align-items:center;gap:14px;color:rgba(255,255,255,.72);font-size:clamp(10px,.8vw,13px);letter-spacing:.24em;text-transform:uppercase}
+#cinemaLoader .cinema-mark{display:inline-grid;place-items:center;width:30px;height:30px;border:1px solid rgba(255,255,255,.52);font-size:11px;font-weight:800;letter-spacing:0;transform:rotate(45deg)}
+#cinemaLoader .cinema-mark span{transform:rotate(-45deg)}
+#cinemaLoader .cinema-main{max-width:min(680px,58vw);margin-top:auto;margin-bottom:clamp(26px,7vh,95px)}
+#cinemaLoader .cinema-kicker{display:flex;align-items:center;gap:12px;color:#d5bb84;font-size:clamp(10px,.9vw,14px);letter-spacing:.29em;text-transform:uppercase}
+#cinemaLoader .cinema-kicker:before{content:"";width:34px;height:1px;background:#d5bb84}
+#cinemaLoader .cinema-title{margin:18px 0 14px;font-size:clamp(42px,7.2vw,104px);line-height:.84;font-weight:900;letter-spacing:.045em;text-transform:uppercase;text-shadow:0 5px 28px rgba(0,0,0,.55)}
+#cinemaLoader .cinema-title span{display:block;color:#d9d4c8;font-size:.68em;letter-spacing:.18em;margin-top:.16em}
+#cinemaLoader .cinema-caption{margin-top:24px;color:rgba(255,255,255,.78);font-size:clamp(11px,1vw,15px);letter-spacing:.18em;text-transform:uppercase}
+#cinemaLoader .cinema-bottom{display:grid;grid-template-columns:minmax(260px,560px) auto;align-items:end;gap:40px}
+#cinemaLoader .cinema-loading{width:min(620px,66vw)}
+#cinemaLoadLog{height:82px;margin-top:12px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;color:rgba(255,255,255,.64);font:10px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase}
+#cinemaLoadLog .log-entry{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:logReveal .35s ease both}
+#cinemaLoadLog .log-entry::before{content:"\2713  ";color:#e5c788}
+#cinemaLoadLog .log-entry.is-warning::before{content:"!  ";color:#e29a72}
+@keyframes logReveal{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+#cinemaLoader .cinema-loading-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;color:rgba(255,255,255,.78);font-size:11px;font-weight:700;letter-spacing:.19em;text-transform:uppercase}
+#cinemaLoadPercent{color:#e5c788;font-variant-numeric:tabular-nums;letter-spacing:.08em}
+#cinemaLoadTrack{height:3px;flex:1;background:rgba(255,255,255,.27);overflow:hidden}
+#cinemaLoadBar{height:100%;width:0;background:linear-gradient(90deg,#b88c4a,#f5dfac);box-shadow:0 0 16px rgba(241,198,119,.45);transition:width 360ms ease}
+#cinemaLoader .cinema-progress-row{display:flex;align-items:center;gap:12px}
+#cinemaLoadSpinner{position:relative;display:block;width:16px;height:16px;flex:0 0 16px;border:1.5px solid rgba(255,255,255,.28);border-top-color:#f1d49b;border-right-color:#f1d49b;border-radius:50%;box-shadow:0 0 10px rgba(229,199,136,.18);animation:cinemaLoadSpin .85s linear infinite}
+#cinemaLoadSpinner::after{content:"";position:absolute;inset:4px;border:1px solid rgba(241,212,155,.52);border-bottom-color:transparent;border-radius:50%;animation:cinemaLoadSpin 1.3s linear infinite reverse}
+@keyframes cinemaLoadSpin{to{transform:rotate(360deg)}}
+#cinemaLoader .cinema-footer{margin-top:10px;color:rgba(255,255,255,.46);font-size:9px;letter-spacing:.17em;text-transform:uppercase}
+@media(max-width:700px){#cinemaLoader .cinema-shell{padding:20px 20px 26px}.cinema-main{max-width:80vw!important;margin-bottom:34px!important}.cinema-title{font-size:clamp(38px,12vw,66px)!important}.cinema-bottom{grid-template-columns:1fr!important;gap:20px!important}.cinema-loading{width:100%!important}.cinema-subject{height:58vh!important;max-width:55vw!important;left:55%!important;opacity:.94}.cinema-ground-shadow{left:63%!important;width:42vw!important}#cinemaLoader .cinema-bottom{margin-bottom:75px}}
+@media(max-width:700px){#cinemaLoadLog{height:68px;font-size:9px}.cinema-loading{width:min(100%,88vw)!important}}
+@media(prefers-reduced-motion:reduce){#cinemaLoader .cinema-bg,#cinemaLoader .cinema-subject,#cinemaLoader .cinema-grain,#cinemaLoadSpinner,#cinemaLoadSpinner::after{animation:none}#cinemaLoader .cinema-scene,#cinemaLoader{transition-duration:.3s}}
+
+/* ===== GTA VI-стил екран за зареждане ===== */
+#cinemaLoader{background:#07030f}
+#cinemaLoader .cinema-grade{background:linear-gradient(90deg,rgba(10,3,28,.82) 0%,rgba(14,4,36,.5) 38%,rgba(14,4,36,.06) 74%),linear-gradient(0deg,rgba(8,2,20,.85) 0%,transparent 50%,rgba(40,10,80,.25) 100%)}
+#cinemaLoader .cinema-bg{filter:saturate(1.05) contrast(1.1) brightness(.78)}
+#cinemaLoader .gta-fx{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}
+#cinemaLoader .gta-tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(70,20,150,.7) 0%,rgba(255,50,150,.38) 52%,rgba(255,140,40,.5) 100%);mix-blend-mode:overlay}
+#cinemaAudioHint{z-index:12;border-color:rgba(255,120,200,.55);color:#ffc2e6}
+#cinemaLoader .cinema-mark{border-color:rgba(255,140,210,.75);color:#ffd6ec;box-shadow:0 0 14px rgba(255,60,160,.35)}
+#cinemaLoader .cinema-topline{color:rgba(255,226,242,.82)}
+#cinemaLoader .cinema-kicker{color:#ff9ad0}
+#cinemaLoader .cinema-kicker:before{background:linear-gradient(90deg,#ff2ea6,#ff9a3c)}
+#cinemaLoader .cinema-title{background:linear-gradient(180deg,#fff 0%,#ffd6ec 38%,#ff7ac8 70%,#ff9a3c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;text-shadow:none;filter:drop-shadow(0 6px 26px rgba(255,50,160,.5));animation:gtaTitle 1.4s cubic-bezier(.2,.7,.2,1) both}
+#cinemaLoader .cinema-title span{color:transparent;-webkit-text-fill-color:transparent}
+@keyframes gtaTitle{from{opacity:0;transform:translateY(18px);letter-spacing:.14em}to{opacity:1;transform:none}}
+#cinemaLoader .cinema-caption{color:rgba(255,226,242,.82)}
+#cinemaLoadPercent{color:#ffb3dc}
+#cinemaLoadTrack{height:4px;border-radius:4px;background:rgba(255,255,255,.22)}
+#cinemaLoadBar{border-radius:4px;background:linear-gradient(90deg,#ff2ea6,#ff7a45,#ffe07a,#ff2ea6);background-size:220% 100%;animation:gtaBar 2.2s linear infinite;box-shadow:0 0 18px rgba(255,60,160,.65),0 0 4px rgba(255,200,120,.8)}
+@keyframes gtaBar{to{background-position:-220% 0}}
+#cinemaLoadSpinner{border-color:rgba(255,255,255,.25);border-top-color:#ff7ac8;border-right-color:#ff9a3c;box-shadow:0 0 12px rgba(255,60,160,.35)}
+#cinemaLoadSpinner::after{border-color:rgba(255,170,220,.6);border-bottom-color:transparent}
+#cinemaLoadLog .log-entry::before{color:#ff7ac8}
+#cinemaLoader .cinema-footer{color:rgba(255,220,240,.55)}
+#launchIntro{flex-direction:column;gap:42px;background:radial-gradient(ellipse at 50% 115%,rgba(255,60,150,.5),rgba(70,20,140,.85) 42%,#05020d 80%)}
+#launchIntro::before{content:"MARIO THEFT AUTO";font:900 clamp(30px,6.4vw,92px)/1 Arial,"Segoe UI",sans-serif;letter-spacing:.14em;text-indent:.14em;text-align:center;background:linear-gradient(180deg,#fff 0%,#ffd6ec 38%,#ff7ac8 70%,#ff9a3c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 8px 30px rgba(255,50,160,.55));animation:gtaTitle 1.6s cubic-bezier(.2,.7,.2,1) both}
+#launchEnter{border:1px solid rgba(255,150,215,.8);color:#ffe3f2;border-radius:999px;box-shadow:0 0 22px rgba(255,60,160,.35),inset 0 0 14px rgba(255,60,160,.15);animation:gtaPulse 2.4s ease-in-out infinite}
+#launchEnter:hover,#launchEnter:focus-visible{color:#fff;border-color:#ffb3dc;background:linear-gradient(90deg,rgba(255,46,166,.55),rgba(255,154,60,.45))}
+@keyframes gtaPulse{50%{box-shadow:0 0 34px rgba(255,60,160,.6),inset 0 0 18px rgba(255,60,160,.25)}}
+.gta-menu .b.big{background:linear-gradient(90deg,#ff2ea6,#ff9a3c);border:0;color:#fff;border-radius:999px;padding:12px 28px;font-weight:800;letter-spacing:.08em;box-shadow:0 6px 22px rgba(255,60,160,.45)}
+.gta-menu .b.big:hover:not(:disabled){filter:brightness(1.12)}
+@media(prefers-reduced-motion:reduce){#cinemaLoader .cinema-title,#cinemaLoadBar,#launchIntro::before,#launchEnter{animation:none}}
+
+/* ===== оптимизация за слаби устройства (само transform/opacity, без филтри и blend) ===== */
+#cinemaLoader .cinema-scene{perspective:none;transform-style:flat}
+#cinemaLoader .cinema-bg{filter:none;will-change:auto;transform:scale(1.04);animation:cinemaDriftLite 28s ease-in-out infinite alternate}
+@keyframes cinemaDriftLite{from{transform:translate3d(1.6%,0,0) scale(1.05)}to{transform:translate3d(-1.6%,0,0) scale(1.1)}}
+#cinemaLoader .cinema-subject{filter:none;will-change:auto;animation:subjectLite 18s ease-in-out infinite alternate}
+@keyframes subjectLite{from{transform:translate3d(3%,0,0) scale(.99)}to{transform:translate3d(-5%,0,0) scale(1.05)}}
+#cinemaLoader .cinema-scene:not(.is-active):not(.is-outgoing) .cinema-bg,#cinemaLoader .cinema-scene:not(.is-active):not(.is-outgoing) .cinema-subject{animation-play-state:paused}
+#cinemaLoader .cinema-grain{display:none}
+#cinemaLoader .cinema-grade{background:linear-gradient(rgba(6,2,16,.2),rgba(6,2,16,.2)),linear-gradient(90deg,rgba(10,3,28,.82) 0%,rgba(14,4,36,.5) 38%,rgba(14,4,36,.06) 74%),linear-gradient(0deg,rgba(8,2,20,.85) 0%,transparent 50%,rgba(40,10,80,.25) 100%)}
+#cinemaLoader .gta-tint{mix-blend-mode:normal;background:linear-gradient(180deg,rgba(70,20,150,.4) 0%,rgba(255,50,150,.2) 55%,rgba(255,140,40,.32) 100%)}
+#cinemaLoader .cinema-title{animation:none;filter:drop-shadow(0 4px 14px rgba(255,50,160,.45))}
+#cinemaLoader .cinema-main{animation:gtaFade 1s ease both}
+@keyframes gtaFade{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+#launchIntro::before{animation:none;filter:drop-shadow(0 4px 16px rgba(255,50,160,.5))}
+#launchEnter{animation:none}
+#cinemaLoadBar{width:100%;transform:scaleX(0);transform-origin:0 50%;transition:transform 360ms ease;will-change:transform;animation:none;background:linear-gradient(90deg,#ff2ea6,#ff7a45,#ffe07a);box-shadow:0 0 10px rgba(255,60,160,.55)}
+#cinemaLoadSpinner,#cinemaLoadSpinner::after{box-shadow:none}
+#cinemaLoader.is-lite .cinema-bg,#cinemaLoader.is-lite .cinema-subject{animation:none}
+#cinemaLoader.is-lite .cinema-title,#launchIntro.is-lite::before{filter:none}
+#cinemaLoader.is-lite .cinema-main{animation:none}
+#cinemaLoader.is-lite #cinemaLoadSpinner::after{display:none}
+#cinemaLoader.is-lite .cinema-vignette{display:none}
+@media(prefers-reduced-motion:reduce){#cinemaLoader .cinema-bg,#cinemaLoader .cinema-subject,#cinemaLoader .cinema-main{animation:none}}
+
+/* ===== 3D tilt в стил GTA 6 (само transform; изключен в lite режим) ===== */
+#cinemaLoader .cinema-scene{perspective:1400px;perspective-origin:50% 50%}
+#cinemaLoader .cinema-tilt{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}
+#cinemaLoader .cinema-tilt .cinema-grade{inset:-8%}
+#cinemaLoader .cinema-bg{scale:1.24;translate:0 0 -180px}
+#cinemaLoader .cinema-subject{translate:0 0 140px}
+@media(prefers-reduced-motion:reduce){#cinemaLoader .cinema-bg{scale:1.05;translate:none}#cinemaLoader .cinema-subject{translate:none}#cinemaLoader .cinema-scene{perspective:none}}
+#cinemaLoader .cinema-sway{position:absolute;inset:0;transform-style:preserve-3d;animation:gtaSway 16s ease-in-out infinite alternate;will-change:transform}
+@keyframes gtaSway{from{transform:rotateY(-2.4deg) rotateX(.9deg)}to{transform:rotateY(2.4deg) rotateX(-.9deg)}}
+#cinemaLoader .cinema-scene:not(.is-active):not(.is-outgoing) .cinema-sway{animation-play-state:paused}
+#cinemaLoader .cinema-bg,#cinemaLoader .cinema-subject{will-change:transform,translate;backface-visibility:hidden}
+@media(prefers-reduced-motion:reduce){#cinemaLoader .cinema-sway{animation:none}}
+#cinemaLoader:not(.is-started) .cinema-scene.is-active{opacity:0}
+#cinemaLoader.is-started .cinema-scene.is-active .cinema-bg{animation:cinemaDriftLite 28s ease-in-out infinite alternate,gtaBgIn 2400ms cubic-bezier(.4,0,.2,1) backwards}
+@keyframes gtaBgIn{from{filter:blur(12px)}to{filter:blur(0)}}
+#cinemaLoader.is-lite.is-started .cinema-scene.is-active .cinema-bg{animation:none}
+@media(prefers-reduced-motion:reduce){#cinemaLoader.is-started .cinema-scene.is-active .cinema-bg{animation:none}}
+
+/* ===== минимален индикатор долу вдясно (като в GTA) ===== */
+#cinemaLoader .cinema-topline,#cinemaLoader .cinema-main,#cinemaLoader .cinema-loading-head,#cinemaLoader .cinema-footer,#cinemaLoadSpinner,#cinemaLoadLog,#cinemaAudioHint{display:none!important}
+#cinemaLoader .cinema-shell{justify-content:flex-end;align-items:flex-end;padding:clamp(24px,5vh,56px) clamp(24px,4vw,64px)}
+#cinemaLoader .cinema-bottom{display:flex!important;align-items:center;gap:clamp(12px,1.4vw,20px);margin:0!important}
+#cinemaLoader .cinema-loading{width:clamp(190px,21vw,300px)!important;display:flex;flex-direction:column;gap:clamp(8px,1vh,12px)}
+#cinemaLoader .cinema-loading::before{content:"Loading Story Mode...";color:#fff;font:500 clamp(14px,1.45vw,21px)/1.1 "Segoe UI",Roboto,Arial,sans-serif;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+#cinemaLoader.is-load-failed .cinema-loading::before{content:"Loading failed \2014  reload";color:#ffc2c2}
+#cinemaLoader .cinema-progress-row{display:block}
+#cinemaLoadTrack{height:clamp(7px,.9vh,10px);border-radius:10px;background:rgba(255,255,255,.3);border:0}
+#cinemaLoadBar{background:#fff;box-shadow:none;border-radius:10px}
+#cinemaLoader .cinema-bottom::after{content:"";flex:0 0 auto;width:clamp(48px,5.2vw,72px);aspect-ratio:1;box-sizing:border-box;border:3px solid #fff;border-radius:clamp(9px,1vw,14px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpolygon fill='white' points='8,44 8,12 18,12 29,30 40,12 50,12 50,44 41,44 41,27 30,44 28,44 17,27 17,44'/%3E%3Cpolygon fill='white' points='52.0,37.5 54.2,43.9 61.0,44.1 55.6,48.2 57.6,54.7 52.0,50.8 46.4,54.7 48.4,48.2 43.0,44.1 49.8,43.9'/%3E%3C/svg%3E") center/72% no-repeat;box-shadow:0 2px 14px rgba(0,0,0,.35)}
+
+/* ===== slide 1: crew cover art (cut-out group, same 3D layering as the other slides) ===== */
+#cinemaLoader #cinemaScene0 .cinema-subject{left:auto;right:2vw;bottom:-4vh;width:min(60vw,104vh);height:auto;max-width:none;object-position:center bottom}
+#cinemaLoader #cinemaScene0 .cinema-ground-shadow{display:none}
+#cinemaLoader #cinemaScene0 .cinema-bg{left:-11%;top:-3%;width:130%;height:106%;object-position:center 50%;scale:1.1}
+#cinemaLoader #cinemaScene0 .cinema-grade{background:radial-gradient(ellipse 42% 24% at 84% 100%,rgba(8,2,20,.72),transparent 72%),linear-gradient(0deg,rgba(8,2,20,.55) 0%,rgba(8,2,20,.1) 32%,transparent 58%)}
+#cinemaLoader .gta-tint{transition:opacity 1.6s ease}
+#cinemaLoader.on-cover .gta-tint{opacity:.28}
+@media(max-width:700px){#cinemaLoader #cinemaScene0 .cinema-subject{width:118vw!important;height:auto!important;max-width:none!important;left:auto!important;right:-9vw!important;opacity:1}#cinemaLoader #cinemaScene0 .cinema-bg{left:-8%;top:4%;width:150%;height:74%;object-position:12% 50%;scale:1.02;-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)}}

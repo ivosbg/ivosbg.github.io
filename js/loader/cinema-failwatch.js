@@ -1,0 +1,1 @@
+(function(){var r=document.getElementById('cinemaLoader'),l=document.getElementById('cinemaLoadLabel');if(!r||!l||!window.MutationObserver)return;new MutationObserver(function(){r.classList.toggle('is-load-failed',/fail/i.test(l.textContent))}).observe(l,{childList:true,characterData:true,subtree:true})})();

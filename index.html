@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="bg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000000"><title>Mario Theft Auto</title><script src="js/core/device.js"></script><link rel="stylesheet" href="css/solo-mode.css"><link rel="stylesheet" href="css/desktop-shell.css">
+<link rel="stylesheet" href="css/loader.css">
+</head><body>
+<div id="launchIntro"><button id="launchEnter" type="button" autofocus>ENTER</button></div>
+<div id="cinemaLoader" role="status" aria-label="Loading Mario Theft Auto">
+ <div id="cinemaScene0" class="cinema-scene is-active" aria-hidden="false"><img class="cinema-bg cinema-photo" alt="Mario Theft Auto VI cover art, sunset gym" src="assets/img/loader/scene0-bg.webp"><div class="cinema-ground-shadow"></div><img class="cinema-subject cinema-photo" alt="Four friends posing together" src="assets/img/loader/scene0-subject.webp"><div class="cinema-grade"></div></div>
+ <div id="cinemaScene1" class="cinema-scene" aria-hidden="true"><img class="cinema-bg cinema-photo" alt="Fishing boat on a broad river" src="assets/img/loader/scene1-bg.webp"><div class="cinema-ground-shadow"></div><img class="cinema-subject cinema-photo" alt="Person in light tracksuit" src="assets/img/loader/scene1-subject.png"><div class="cinema-grade"></div></div>
+ <div id="cinemaScene2" class="cinema-scene" aria-hidden="true"><img class="cinema-bg cinema-photo" alt="Radetzky river ship at anchor" src="assets/img/loader/scene2-bg.webp"><div class="cinema-ground-shadow"></div><img class="cinema-subject cinema-photo" alt="Person in grey tracksuit with sunglasses" src="assets/img/loader/scene2-subject.png"><div class="cinema-grade"></div></div>
+ <div class="gta-fx" aria-hidden="true"><div class="gta-tint"></div></div>
+ <div class="cinema-vignette"></div><div class="cinema-grain"></div>
+ <div class="cinema-shell"><div class="cinema-topline"><span class="cinema-mark"><span>M</span></span><span>River County • Open World</span></div>
+  <div class="cinema-main"><div class="cinema-kicker" id="cinemaKicker">River Crossing / 01</div><h1 class="cinema-title">Mario<span>Theft Auto</span></h1><div class="cinema-caption" id="cinemaCaption">A boat on the Meghna river</div></div>
+  <div class="cinema-bottom"><div class="cinema-loading"><div class="cinema-loading-head"><span id="cinemaLoadLabel">Loading world resources</span><span id="cinemaLoadPercent">0%</span></div><div class="cinema-progress-row"><span id="cinemaLoadSpinner" role="img" aria-label="Loading" aria-hidden="true"></span><div id="cinemaLoadTrack" role="progressbar" aria-label="Verified game asset loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="cinemaLoadBar"></div></div></div><div id="cinemaLoadLog" role="log" aria-live="polite" aria-label="Game loading log"></div><div class="cinema-footer">The world is being prepared • <span id="cinemaSceneCount">01 / 03</span></div></div></div>
+ </div>
+ 
+ <div id="cinemaAudioHint" role="status" aria-live="polite">Starting soundtrack…</div>
+</div>
+<script src="js/loader/cinema-lite.js"></script>
+<script src="js/loader/cinema-tilt.js"></script>
+<script src="js/loader/cinema-failwatch.js"></script>
+<script src="js/loader/cinema-loader.js"></script>
+
+<div id="desk"></div>
+<div id="sm"></div><div id="cm"></div>
+<div id="bar"><button id="sb" title="Старт"></button><div id="tasks"></div><div id="tray"><span id="net" title="Мрежа">📶</span><span id="spk" style="cursor:pointer" title="Заглушаване / включване">🔊</span><input id="vol" type="range" min="0" max="100" style="width:60px" title="Сила на звука"><div id="clk"></div><button id="sd" title="Покажи работния плот"></button></div></div>
+<div id="off"></div>
+<!-- embedded images + sounds (must load before the game code) -->
+<script src="assets/data/images.js"></script>
+<script src="assets/data/audio.js"></script>
+<!-- OS shell -->
+<script src="js/shell/helpers.js"></script>
+<script src="js/shell/branding.js"></script>
+<script src="js/shell/icons.js"></script>
+<script src="js/shell/audio.js"></script>
+<script src="js/shell/desktop.js"></script>
+<!-- apps (the game itself is js/apps/game.js) -->
+<script src="js/apps/registry.js"></script>
+<script src="js/apps/player.js"></script>
+<script src="js/apps/mario.js"></script>
+<script src="js/apps/ivonly.js"></script>
+<script src="js/apps/afaicraft.js"></script>
+<script src="js/apps/maps.js"></script>
+<script src="js/apps/browser.js"></script>
+<script src="js/apps/game.js"></script>
+<script src="js/apps/photos.js"></script>
+<script src="js/apps/explorer.js"></script>
+<script src="js/apps/notepad.js"></script>
+<script src="js/apps/settings.js"></script>
+<script src="js/apps/calc.js"></script>
+<!-- start-up: solo mode, game window, starter hook -->
+<script src="js/shell/boot.js"></script>
+<script id="vazpack" type="text/plain"></script>
+<script src="assets/data/vazpack.js"></script>
+<script id="roadtex" type="text/plain"></script>
+<script src="assets/data/road-textures.js"></script>
+<script id="radiomp3" type="text/plain"></script>
+<script src="assets/data/radio-music.js"></script>
+
+<script id="playerGlbData" data-encoding="gzip" type="text/plain"></script>
+<script src="assets/data/player-model.js"></script><script src="js/touch/touch-controls.js"></script>
+</body></html>
