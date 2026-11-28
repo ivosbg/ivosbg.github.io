@@ -10,6 +10,7 @@ function store(k,v){try{if(v===undefined)return W.localStorage.getItem(k);W.loca
 /* ---------- styles ---------- */
 var css=[
 'html[data-controls="touch"],html[data-controls="touch"] body{touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}',
+'html[data-controls="touch"] .bd,html[data-controls="touch"] canvas{touch-action:none}',
 /* game HUD re-layout so it never collides with the touch controls */
 'html[data-controls="touch"] .mtaHp{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(8,10,14,.86)!important}',
 'html[data-controls="touch"] .mtaCross{mix-blend-mode:normal!important;text-shadow:0 0 2px #000,0 0 5px #000}',
@@ -21,6 +22,36 @@ var css=[
 'html[data-controls="touch"] .mtaHp{min-width:0!important;transform:scale(.78);transform-origin:top right;right:calc(env(safe-area-inset-right,0px) + 6px)!important;top:6px!important}',
 'html[data-controls="touch"] .mtaPrompt{bottom:calc(env(safe-area-inset-bottom,0px) + 82px)!important;font-size:16px!important}',
 'html[data-controls="touch"] .mtaHelp{max-width:min(88vw,640px);font:500 clamp(11px,1.9vmin,14px)/1.5 system-ui,sans-serif;color:#ffd6ec;opacity:.9;margin-top:6px}',
+'html[data-controls="touch"] .mtaHud{left:calc(env(safe-area-inset-left,0px) + 8px)!important;top:calc(env(safe-area-inset-top,0px) + 7px)!important;max-width:42vw;font:700 clamp(10px,1.55vmin,12px)/1.3 system-ui,sans-serif!important;white-space:pre-line!important}',
+'html[data-controls="touch"] .mtaWanted{right:calc(env(safe-area-inset-right,0px) + 8px)!important;top:calc(env(safe-area-inset-top,0px) + 5px)!important;gap:1px!important}',
+'html[data-controls="touch"] .mtaWanted span{width:clamp(15px,3.5vmin,19px)!important;font-size:clamp(17px,4.2vmin,21px)!important}',
+'html[data-controls="touch"] .mtaHp{right:calc(env(safe-area-inset-right,0px) + 8px)!important;top:calc(env(safe-area-inset-top,0px) + 31px)!important;min-width:0!important;width:clamp(126px,27vw,166px)!important;max-width:42vw;padding:5px 7px!important;transform:none!important;gap:6px!important;font-size:10px!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(8,10,14,.86)!important}',
+'html[data-controls="touch"] .mtaHp>div{width:auto!important;min-width:0!important;height:6px!important}',
+'html[data-controls="touch"] .mtaMap{left:calc(env(safe-area-inset-left,0px) + 8px)!important;top:calc(env(safe-area-inset-top,0px) + 58px)!important;bottom:auto!important;width:clamp(118px,24vw,190px)!important;height:clamp(76px,15.5vw,116px)!important;border-width:1.5px!important;border-radius:10px!important}',
+'html[data-controls="touch"] .mtaMap.big{width:clamp(118px,24vw,190px)!important;height:clamp(76px,15.5vw,116px)!important}',
+'html[data-controls="touch"] .mtaCompass{width:min(38vw,250px)!important;height:auto!important;top:4px!important;opacity:.88}',
+'html[data-controls="touch"] .mtaSpeed{right:auto!important;left:50%!important;transform:translateX(-50%)!important;bottom:calc(env(safe-area-inset-bottom,0px) + 5px)!important;width:min(180px,30vw)!important;height:64px!important}',
+'html[data-controls="touch"] .mtaPrompt{bottom:calc(env(safe-area-inset-bottom,0px) + 78px)!important;font-size:clamp(13px,2.1vmin,16px)!important;max-width:72vw;text-align:center;white-space:normal!important}',
+'html[data-controls="touch"] .mtc{z-index:45;--u:clamp(38px,9vmin,54px);--us:clamp(34px,7.5vmin,42px);--js:clamp(104px,28vmin,144px);--m:12px}',
+'html[data-controls="touch"] .mtc-util{right:calc(env(safe-area-inset-right,0px) + 8px);top:calc(env(safe-area-inset-top,0px) + 68px);gap:5px}',
+'html[data-controls="touch"] .mtc-b{border-width:1.5px;box-shadow:0 2px 8px rgba(0,0,0,.32);background:rgba(10,14,24,.62)}',
+'html[data-controls="touch"] .mtc-b span{font-size:10px}',
+'html.mta-full-map .mtc{display:none!important;pointer-events:none!important}',
+'html.mta-full-map .mtaMap{touch-action:none!important}',
+'html[data-controls="touch"].mta-full-map .mtaMap{left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;border:0!important;border-radius:0!important;box-shadow:none!important}',
+'html[data-controls="touch"] .mtaMapHeader{top:env(safe-area-inset-top,0px)!important;min-height:50px!important;height:50px!important;padding:0 calc(env(safe-area-inset-right,0px) + 10px) 0 calc(env(safe-area-inset-left,0px) + 10px)!important;gap:10px!important;font-size:11px!important}',
+'html[data-controls="touch"] .mtaMapHeader>div:first-child{width:31px!important;height:31px!important;flex:0 0 31px!important;font-size:10px!important}',
+'html[data-controls="touch"] .mtaMapTabs{gap:0!important;flex:1;min-width:0;justify-content:center}',
+'html[data-controls="touch"] .mtaMapTabs>span{display:none!important}',
+'html[data-controls="touch"] .mtaMapTabs>span:first-child{display:block!important;padding:6px 13px!important;font-size:10px!important}',
+'html[data-controls="touch"] .mtaMapBrand{display:none!important}',
+'html[data-controls="touch"] .mtaMapFooter{bottom:env(safe-area-inset-bottom,0px)!important;min-height:54px!important;padding:7px calc(env(safe-area-inset-right,0px) + 9px) 7px calc(env(safe-area-inset-left,0px) + 9px)!important;gap:7px!important;letter-spacing:.04em!important}',
+'html[data-controls="touch"] .mtaMapStatus{flex:1;min-width:0;max-width:58%;font-size:clamp(9px,1.8vmin,11px)!important;line-height:1.25!important;letter-spacing:.05em!important}',
+'html[data-controls="touch"] .mtaMapActions{gap:6px!important}',
+'html[data-controls="touch"] .mtaMapButton{min-height:35px;padding:7px 9px!important;font-size:clamp(9px,1.8vmin,11px)!important;letter-spacing:.03em!important;white-space:nowrap}',
+'html[data-controls="touch"] .mtaMapClose{min-width:62px}',
+'html[data-controls="touch"] .mtaMapClear{min-width:76px}',
+'@media(max-height:500px) and (orientation:landscape){html[data-controls="touch"] .mtaMap{top:calc(env(safe-area-inset-top,0px) + 52px)!important;width:clamp(112px,20vw,170px)!important;height:clamp(68px,14vw,100px)!important}html[data-controls="touch"] .mtc{--js:clamp(96px,25vmin,128px);--u:clamp(36px,8vmin,48px);--us:clamp(32px,7vmin,38px)}html[data-controls="touch"] .mtaPrompt{bottom:calc(env(safe-area-inset-bottom,0px) + 68px)!important}}',
 /* controls layer */
 '.mtc{position:fixed;inset:0;z-index:25;pointer-events:none;display:none;--u:clamp(44px,10.5vmin,76px);--us:clamp(34px,8vmin,50px);--js:clamp(112px,30vmin,170px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--m:2.6vmin;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}',
 '.mtc.show{display:block}',
@@ -212,7 +243,7 @@ panel.addEventListener('pointerdown',function(e){if(e.target===panel)closePanel(
 
 /* ---------- portrait hint (phones) ---------- */
 var rot=doc.createElement('div');rot.className='mtc-rot';
-rot.innerHTML='<div class="ph">📱</div><div style="font:800 20px system-ui">Rotate your phone</div><div style="opacity:.75;font-size:14px;max-width:320px">Mario Theft Auto plays best in landscape.</div><button id="mtcPort">Play in portrait anyway</button>';
+rot.innerHTML='<div class="ph">📱</div><div style="font:800 20px system-ui">Rotate your phone</div><div style="opacity:.75;font-size:14px;max-width:320px">Landscape gives you more room for driving, aiming and the full-screen GPS map. The map also supports finger drag and pinch zoom.</div><button id="mtcPort">Play in portrait anyway</button>';
 doc.body.appendChild(rot);var portraitOK=false;
 rot.querySelector('#mtcPort').addEventListener('click',function(){portraitOK=true;refresh()});
 
